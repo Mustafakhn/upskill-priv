@@ -197,7 +197,7 @@ export default function QuizzesPage() {
                         <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                           {quiz.quiz_type}
                         </span>
-                        {quiz.completed && quiz.score !== null && (
+                        {quiz.completed && quiz.score != null && typeof quiz.score === 'number' && (
                           <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
                             quiz.score >= 80 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' :
                             quiz.score >= 60 ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800' :
