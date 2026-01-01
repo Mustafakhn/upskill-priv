@@ -234,7 +234,7 @@ export default function QuizzesPage() {
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Quiz Details</h2>
-                    {selectedQuiz.completed && selectedQuiz.score !== null && (
+                    {selectedQuiz.completed && selectedQuiz.score != null && typeof selectedQuiz.score === 'number' && (
                       <div className={`text-4xl font-bold ${
                         selectedQuiz.score >= 80 ? 'text-green-600 dark:text-green-400' :
                         selectedQuiz.score >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
