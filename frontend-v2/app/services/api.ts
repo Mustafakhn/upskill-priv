@@ -75,6 +75,7 @@ api.interceptors.response.use(
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  timestamp?: string
 }
 
 export interface Journey {

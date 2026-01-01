@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { MessageSquare, Send, Loader2 } from 'lucide-react'
 import Card from '../components/common/Card'
@@ -19,6 +19,7 @@ export default function ChatPage() {
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const messagesEndRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -189,8 +190,8 @@ export default function ChatPage() {
                   )}
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm ${message.role === 'user'
-                        ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white'
-                        : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700'
+                      ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white'
+                      : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700'
                       }`}
                   >
                     <div className="whitespace-pre-wrap break-words leading-relaxed">{message.content}</div>
