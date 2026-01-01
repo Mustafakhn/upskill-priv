@@ -19,6 +19,7 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
+    name = Column(String(255), nullable=True)  # Optional name field
     password_hash = Column(String(255), nullable=False)
     free_journeys_used = Column(Integer, default=0, nullable=False)
     is_premium = Column(Integer, default=0, nullable=False)  # 0 = false, 1 = true

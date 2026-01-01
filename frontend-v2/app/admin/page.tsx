@@ -13,6 +13,7 @@ import { useAuth } from '../hooks/useAuth'
 interface PremiumRequest {
   id: number
   email: string
+  name?: string | null
   free_journeys_used: number
   premium_requested: boolean
   created_at: string
@@ -21,6 +22,7 @@ interface PremiumRequest {
 interface AdminUser {
   id: number
   email: string
+  name?: string | null
   free_journeys_used: number
   is_premium: boolean
   is_admin: boolean
@@ -142,7 +144,14 @@ export default function AdminPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <Users className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                        <span className="font-medium text-slate-900 dark:text-slate-100">{request.email}</span>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900 dark:text-slate-100">
+                            {request.name || request.email}
+                          </span>
+                          {request.name && (
+                            <span className="text-xs text-slate-500 dark:text-slate-400">{request.email}</span>
+                          )}
+                        </div>
                       </div>
                       <div className="text-sm text-slate-600 dark:text-slate-400">
                         Free journeys used: {request.free_journeys_used} / 5
@@ -192,7 +201,14 @@ export default function AdminPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <Users className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                      <span className="font-medium text-slate-900 dark:text-slate-100">{adminUser.email}</span>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-slate-900 dark:text-slate-100">
+                          {adminUser.name || adminUser.email}
+                        </span>
+                        {adminUser.name && (
+                          <span className="text-xs text-slate-500 dark:text-slate-400">{adminUser.email}</span>
+                        )}
+                      </div>
                       {adminUser.is_admin && (
                         <Badge variant="warning">Admin</Badge>
                       )}

@@ -20,6 +20,7 @@ export default function Header() {
         { name: 'New Journey', href: '/start' },
         { name: 'My Learning', href: '/my-learning' },
         { name: 'Quizzes', href: '/quizzes' },
+        { name: 'Settings', href: '/settings' },
       ]
       if (user?.is_admin) {
         nav.push({ name: 'Admin', href: '/admin' })
@@ -84,7 +85,7 @@ export default function Header() {
                     {user?.is_premium && <Crown className="w-4 h-4 text-yellow-500" />}
                     {user?.is_admin && <Shield className="w-4 h-4 text-purple-500" />}
                     <User className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                    <span className="text-sm text-slate-700 dark:text-slate-300">{user?.email?.split('@')[0]}</span>
+                    <span className="text-sm text-slate-700 dark:text-slate-300">{user?.name || user?.email?.split('@')[0]}</span>
                   </div>
                   <Button variant="ghost" size="sm" icon={<LogOut className="w-4 h-4" />} onClick={handleLogout}>
                     Logout
@@ -151,7 +152,7 @@ export default function Header() {
                         {user?.is_premium && <Crown className="w-4 h-4 text-yellow-500" />}
                         {user?.is_admin && <Shield className="w-4 h-4 text-purple-500" />}
                         <User className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        <span className="text-sm text-slate-700 dark:text-slate-300">{user?.email?.split('@')[0]}</span>
+                        <span className="text-sm text-slate-700 dark:text-slate-300">{user?.name || user?.email?.split('@')[0]}</span>
                       </div>
                       <Button variant="ghost" size="sm" className="w-full" icon={<LogOut className="w-4 h-4" />} onClick={handleLogout}>
                         Logout

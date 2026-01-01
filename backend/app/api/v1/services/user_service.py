@@ -36,6 +36,7 @@ class UserService:
         return {
             "id": user.id,
             "email": user.email,
+            "name": user.name,
             "free_journeys_used": user.free_journeys_used,
             "is_premium": user.is_premium == 1,
             "is_admin": user.is_admin == 1,
@@ -54,6 +55,54 @@ class UserService:
         return {
             "id": user.id,
             "email": user.email,
+            "name": user.name,
+            "free_journeys_used": user.free_journeys_used,
+            "is_premium": user.is_premium == 1,
+            "is_admin": user.is_admin == 1,
+            "premium_requested": user.premium_requested == 1
+        }
+    
+    def update_user_name(self, db: Session, user_id: int, name: str) -> Dict[str, Any]:
+        """Update user's name"""
+        user = self.user_dao.get_by_id(db, user_id)
+        if not user:
+            raise ValueError("User not found")
+        user.name = name.strip() if name else None
+        db.commit()
+        db.refresh(user)
+        return {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "free_journeys_used": user.free_journeys_used,
+            "is_premium": user.is_premium == 1,
+            "is_admin": user.is_admin == 1,
+            "premium_requested": user.premium_requested == 1
+        }
+    
+    def update_user_password(self, db: Session, user_id: int, old_password: str, new_password: str) -> Dict[str, Any]:
+        """Update user's password"""
+        user = self.user_dao.get_by_id(db, user_id)
+        if not user:
+            raise ValueError("User not found")
+        
+        # Verify old password
+        if not self.user_dao.verify_password(old_password, user.password_hash):
+            raise ValueError("Current password is incorrect")
+        
+        # Validate new password
+        if len(new_password) < 6:
+            raise ValueError("New password must be at least 6 characters")
+        
+        # Update password
+        from app.api.v1.dao.user_dao import _hash_password
+        user.password_hash = _hash_password(new_password)
+        db.commit()
+        db.refresh(user)
+        return {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
             "free_journeys_used": user.free_journeys_used,
             "is_premium": user.is_premium == 1,
             "is_admin": user.is_admin == 1,
@@ -154,6 +203,7 @@ class UserService:
         return {
             "id": user.id,
             "email": user.email,
+            "name": user.name,
             "is_premium": user.is_premium == 1,
             "premium_requested": user.premium_requested == 1
         }
@@ -168,6 +218,7 @@ class UserService:
             {
                 "id": user.id,
                 "email": user.email,
+                "name": user.name,
                 "free_journeys_used": user.free_journeys_used,
                 "premium_requested": user.premium_requested == 1,
                 "created_at": user.created_at.isoformat() if user.created_at else None
@@ -182,6 +233,7 @@ class UserService:
             {
                 "id": user.id,
                 "email": user.email,
+                "name": user.name,
                 "free_journeys_used": user.free_journeys_used,
                 "is_premium": user.is_premium == 1,
                 "is_admin": user.is_admin == 1,

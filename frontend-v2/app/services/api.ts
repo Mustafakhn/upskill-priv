@@ -155,6 +155,19 @@ export const apiClient = {
     return response.data
   },
 
+  updateUserName: async (name: string) => {
+    const response = await api.put('/api/v1/user/update-name', { name })
+    return response.data
+  },
+
+  updatePassword: async (oldPassword: string, newPassword: string) => {
+    const response = await api.put('/api/v1/user/update-password', {
+      old_password: oldPassword,
+      new_password: newPassword
+    })
+    return response.data
+  },
+
   // Popular Topics
   getPopularTopics: async (): Promise<string[]> => {
     try {

@@ -6,6 +6,7 @@ import { apiClient } from '../services/api'
 interface User {
   id: number
   email: string
+  name?: string | null
   created_at: string
   free_journeys_used: number
   is_premium: boolean

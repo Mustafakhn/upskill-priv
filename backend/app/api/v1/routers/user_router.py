@@ -41,6 +41,7 @@ class TokenResponse(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: str
+    name: Optional[str] = None
     free_journeys_used: int
     is_premium: bool = False
     is_admin: bool = False
@@ -107,9 +108,10 @@ def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db_ses
         "access_token": access_token,
         "refresh_token": refresh_token,
         "token_type": "bearer",
-        "user": {
+            "user": {
             "id": user.id,
             "email": user.email,
+            "name": user.name,
             "free_journeys_used": user.free_journeys_used,
             "is_premium": user.is_premium == 1,
             "is_admin": user.is_admin == 1,
@@ -130,6 +132,7 @@ def get_current_user(
     return {
         "id": user.id,
         "email": user.email,
+        "name": user.name,
         "free_journeys_used": user.free_journeys_used,
         "is_premium": user.is_premium == 1,
         "is_admin": user.is_admin == 1,
@@ -194,6 +197,43 @@ def set_premium_status(
     try:
         result = user_service.set_premium_status(db, request.user_id, request.is_premium)
         return {"message": f"Premium status updated successfully", "user": result}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+class UpdateNameRequest(BaseModel):
+    name: str
+
+
+class UpdatePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+
+
+@router.put("/update-name", response_model=UserResponse)
+def update_name(
+    request: UpdateNameRequest,
+    db: Session = Depends(get_db_session),
+    user_id: int = Depends(get_user_id_from_token)
+):
+    """Update user's name"""
+    try:
+        user = user_service.update_user_name(db, user_id, request.name)
+        return user
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.put("/update-password", response_model=UserResponse)
+def update_password(
+    request: UpdatePasswordRequest,
+    db: Session = Depends(get_db_session),
+    user_id: int = Depends(get_user_id_from_token)
+):
+    """Update user's password"""
+    try:
+        user = user_service.update_user_password(db, user_id, request.old_password, request.new_password)
+        return user
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
