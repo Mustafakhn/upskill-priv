@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   description: "AI-powered learning companion that helps you master any skill. From cooking to coding, guitar to gardening - find the best resources curated just for you.",
   keywords: "learning, education, AI, tutorials, courses, skills",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
   icons: {
     icon: "/upskill-logo.svg",
     apple: "/upskill-logo.svg",
@@ -22,11 +21,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Upskill",
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#3b82f6",
 };
 
 export default function RootLayout({

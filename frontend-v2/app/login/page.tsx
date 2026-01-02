@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Mail, Lock, Sparkles } from 'lucide-react'
@@ -8,7 +8,7 @@ import Button from '../components/common/Button'
 import Card from '../components/common/Card'
 import { useAuth } from '../hooks/useAuth'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/my-learning'
@@ -122,3 +122,21 @@ export default function LoginPage() {
   )
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen py-12 flex items-center justify-center">
+        <div className="max-w-md w-full px-4">
+          <Card>
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
+              <p className="mt-4 text-slate-600 dark:text-slate-400">Loading...</p>
+            </div>
+          </Card>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  )
+}
