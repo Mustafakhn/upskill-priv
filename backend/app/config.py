@@ -38,8 +38,26 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: str = "*"  # Comma-separated list of origins, or "*" for all
 
+    # Web Push (VAPID)
+    VAPID_PRIVATE_KEY: Optional[str] = None
+    VAPID_PUBLIC_KEY: Optional[str] = None
+    VAPID_CONTACT_EMAIL: Optional[str] = None
+
     class Config:
         env_file = ".env"
+        
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Auto-generate public key from private key if not provided
+        if self.VAPID_PRIVATE_KEY and not self.VAPID_PUBLIC_KEY:
+            try:
+                from app.utils.vapid import get_public_key_from_private, format_vapid_private_key
+                formatted_key = format_vapid_private_key(self.VAPID_PRIVATE_KEY)
+                public_key = get_public_key_from_private(formatted_key)
+                if public_key:
+                    self.VAPID_PUBLIC_KEY = public_key
+            except Exception as e:
+                print(f"Warning: Could not generate VAPID public key: {e}")
 
 
 settings = Settings()

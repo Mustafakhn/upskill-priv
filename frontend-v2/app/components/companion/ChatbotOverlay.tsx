@@ -69,7 +69,7 @@ export default function ChatbotOverlay({ journeyId, resourceId }: ChatbotOverlay
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center">
               <MessageCircle className="w-4 h-4 text-white" />
             </div>
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">AI Companion</h3>
+          <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">AI Companion</h3>
           </div>
           <button
             onClick={() => setIsOpen(false)}

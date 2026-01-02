@@ -8,7 +8,14 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {}
+  let data = {}
+  try {
+    data = event.data ? event.data.json() : {}
+  } catch (e) {
+    console.error('Error parsing push data:', e)
+    data = { title: 'Upskill', body: 'You have a new notification' }
+  }
+
   const title = data.title || 'Upskill'
   const options = {
     body: data.body || 'Your learning journey is ready!',

@@ -43,7 +43,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <div className="mb-6 flex justify-center">
             <Logo size="lg" />
-          </div>
+            </div>
           <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
           <p className="text-slate-600 dark:text-slate-400">
             Sign in to continue your learning journey

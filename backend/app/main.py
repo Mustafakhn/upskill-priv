@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.db.mysql import init_db
-from app.api.v1.routers import chat_router, journey_router, resource_router, user_router, companion_router, admin_router, quiz_router
+from app.api.v1.routers import chat_router, journey_router, resource_router, user_router, companion_router, admin_router, quiz_router, push_router
 from app.db.base import Journey, JourneyStatus
 
 app = FastAPI(
@@ -75,6 +75,7 @@ app.include_router(resource_router.router, prefix=settings.API_V1_PREFIX)
 app.include_router(companion_router.router, prefix=settings.API_V1_PREFIX)
 app.include_router(admin_router.router, prefix=settings.API_V1_PREFIX)
 app.include_router(quiz_router.router, prefix=settings.API_V1_PREFIX)
+app.include_router(push_router.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/")

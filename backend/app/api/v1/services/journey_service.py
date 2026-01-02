@@ -310,6 +310,20 @@ class JourneyService:
             db.commit()  # Commit the status change
             print(f"[JOURNEY {journey_id}] Journey processing completed successfully!")
             
+            # Send push notification
+            try:
+                from app.api.v1.services.push_service import PushService
+                push_service = PushService()
+                push_service.send_journey_ready_notification(
+                    user_id=journey.user_id,
+                    journey_id=journey_id,
+                    topic=journey.topic
+                )
+            except Exception as e:
+                print(f"Error sending push notification for journey {journey_id}: {e}")
+                import traceback
+                traceback.print_exc()
+            
             return {"success": True, "resource_count": len(journey_data["resources"])}
         except Exception as e:
             self.journey_dao.update_status(db, journey_id, JourneyStatus.FAILED)

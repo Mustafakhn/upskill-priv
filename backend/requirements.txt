@@ -16,4 +16,5 @@ duckduckgo-search==4.1.1
 playwright==1.40.0
 requests-html==0.10.0
 googlesearch-python==1.2.3
+pywebpush==1.14.0
 

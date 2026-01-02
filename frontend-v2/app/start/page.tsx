@@ -10,7 +10,7 @@ import Loading from '../components/common/Loading'
 import ConversationHistory from '../components/chat/ConversationHistory'
 import { apiClient, ChatMessage } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
-import { requestNotificationPermission, registerServiceWorker } from '../utils/notifications'
+import { requestNotificationPermission, registerServiceWorker, subscribeToPushNotifications } from '../utils/notifications'
 
 function StartPageContent() {
   const router = useRouter()
@@ -123,11 +123,15 @@ function StartPageContent() {
         setIsReady(true)
         setJourneyId(response.journey_id)
 
-        // Request notification permission when journey creation starts
+        // Request notification permission and subscribe to push when journey creation starts
         try {
-          await registerServiceWorker()
-          await requestNotificationPermission()
-          // Start polling for journey status
+          const registration = await registerServiceWorker()
+          if (registration) {
+            await requestNotificationPermission()
+            // Subscribe to push notifications
+            await subscribeToPushNotifications(registration)
+          }
+          // Also start polling as fallback
           startJourneyStatusPolling(response.journey_id)
         } catch (error) {
           console.error('Failed to set up notifications:', error)

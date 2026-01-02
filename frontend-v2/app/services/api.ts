@@ -339,6 +339,35 @@ export const apiClient = {
     const response = await api.get(`/api/v1/quiz/user/${userId}/quizzes${params}`)
     return response.data
   },
+
+  // Push Notifications
+  subscribeToPush: async (subscription: PushSubscription) => {
+    const response = await api.post('/api/v1/push/subscribe', {
+      subscription: {
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: arrayBufferToBase64(subscription.getKey('p256dh')!),
+          auth: arrayBufferToBase64(subscription.getKey('auth')!)
+        }
+      }
+    })
+    return response.data
+  },
+
+  unsubscribeFromPush: async () => {
+    const response = await api.post('/api/v1/push/unsubscribe')
+    return response.data
+  },
+}
+
+// Helper function to convert ArrayBuffer to base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
 }
 
 export interface Conversation {
