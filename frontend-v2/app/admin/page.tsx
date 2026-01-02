@@ -139,17 +139,17 @@ export default function AdminPage() {
                 {premiumRequests.map((request) => (
                   <div
                     key={request.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
                   >
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <Users className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                        <div className="flex flex-col">
-                          <span className="font-medium text-slate-900 dark:text-slate-100">
+                        <Users className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-medium text-slate-900 dark:text-slate-100 truncate">
                             {request.name || request.email}
                           </span>
                           {request.name && (
-                            <span className="text-xs text-slate-500 dark:text-slate-400">{request.email}</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{request.email}</span>
                           )}
                         </div>
                       </div>
@@ -157,7 +157,7 @@ export default function AdminPage() {
                         Free journeys used: {request.free_journeys_used} / 5
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {processing === request.id ? (
                         <Loader2 className="w-5 h-5 animate-spin text-teal-600 dark:text-teal-400" />
                       ) : (
@@ -167,6 +167,7 @@ export default function AdminPage() {
                             size="sm"
                             onClick={() => handleSetPremium(request.id, true)}
                             icon={<CheckCircle className="w-4 h-4" />}
+                            className="flex-1 sm:flex-initial"
                           >
                             Approve
                           </Button>
@@ -175,6 +176,7 @@ export default function AdminPage() {
                             size="sm"
                             onClick={() => handleSetPremium(request.id, false)}
                             icon={<XCircle className="w-4 h-4" />}
+                            className="flex-1 sm:flex-initial"
                           >
                             Deny
                           </Button>
@@ -196,34 +198,36 @@ export default function AdminPage() {
               {allUsers.map((adminUser) => (
                 <div
                   key={adminUser.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Users className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                      <div className="flex flex-col">
-                        <span className="font-medium text-slate-900 dark:text-slate-100">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                      <Users className="w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="font-medium text-slate-900 dark:text-slate-100 truncate">
                           {adminUser.name || adminUser.email}
                         </span>
                         {adminUser.name && (
-                          <span className="text-xs text-slate-500 dark:text-slate-400">{adminUser.email}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{adminUser.email}</span>
                         )}
                       </div>
-                      {adminUser.is_admin && (
-                        <Badge variant="warning">Admin</Badge>
-                      )}
-                      {adminUser.is_premium && (
-                        <Badge variant="success">
-                          <Crown className="w-3 h-3 inline mr-1" />
-                          Premium
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {adminUser.is_admin && (
+                          <Badge variant="warning">Admin</Badge>
+                        )}
+                        {adminUser.is_premium && (
+                          <Badge variant="success">
+                            <Crown className="w-3 h-3 inline mr-1" />
+                            Premium
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                     <div className="text-sm text-slate-600 dark:text-slate-400">
                       Free journeys: {adminUser.free_journeys_used} / 5
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {processing === adminUser.id ? (
                       <Loader2 className="w-5 h-5 animate-spin text-teal-600 dark:text-teal-400" />
                     ) : (
@@ -232,8 +236,10 @@ export default function AdminPage() {
                         size="sm"
                         onClick={() => handleSetPremium(adminUser.id, !adminUser.is_premium)}
                         icon={adminUser.is_premium ? <XCircle className="w-4 h-4" /> : <Crown className="w-4 h-4" />}
+                        className="w-full sm:w-auto"
                       >
-                        {adminUser.is_premium ? 'Remove Premium' : 'Make Premium'}
+                        <span className="hidden sm:inline">{adminUser.is_premium ? 'Remove Premium' : 'Make Premium'}</span>
+                        <span className="sm:hidden">{adminUser.is_premium ? 'Remove' : 'Make Premium'}</span>
                       </Button>
                     )}
                   </div>

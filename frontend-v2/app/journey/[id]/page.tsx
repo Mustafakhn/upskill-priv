@@ -496,10 +496,11 @@ export default function JourneyDetailPage() {
                 </Button>
                 <button
                   onClick={() => setRoadmapOpen(!roadmapOpen)}
-                  className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 lg:hidden flex-shrink-0"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 lg:hidden flex-shrink-0"
                   title={roadmapOpen ? 'Hide roadmap' : 'Show roadmap'}
                 >
                   <Map className="w-5 h-5" />
+                  <span className="text-sm font-medium">{roadmapOpen ? 'Hide' : 'Roadmap'}</span>
                 </button>
                 <div className="flex-1 min-w-0">
                   <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">{journey.topic}</h1>
