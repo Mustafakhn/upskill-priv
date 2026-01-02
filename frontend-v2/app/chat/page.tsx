@@ -124,41 +124,47 @@ export default function ChatPage() {
 
   return (
     <div className="fixed top-16 inset-x-0 bottom-0 bg-slate-50 dark:bg-slate-900 overflow-hidden">
-      {/* Mobile backdrop when sidebar is open */}
-      {sidebarOpen && (
-        <div
-          className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
       <div className="flex h-full overflow-hidden relative">
-        {/* Desktop Sidebar (in flex layout) - only show when open */}
+        {/* Desktop Sidebar (overlay when open) */}
         {sidebarOpen && (
-          <div className="hidden lg:block w-80 transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-10 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
-            <ConversationHistory
-              key={refreshKey}
-              currentConversationId={selectedConversationId}
-              onConversationSelect={handleConversationSelect}
-              onNewChat={handleNewChat}
-              isOpen={sidebarOpen}
-              onToggle={() => setSidebarOpen(!sidebarOpen)}
+          <>
+            {/* Desktop backdrop - behind sidebar */}
+            <div
+              className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
+              onClick={() => setSidebarOpen(false)}
             />
-          </div>
+            <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+              <ConversationHistory
+                key={refreshKey}
+                currentConversationId={selectedConversationId}
+                onConversationSelect={handleConversationSelect}
+                onNewChat={handleNewChat}
+                isOpen={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+              />
+            </div>
+          </>
         )}
 
         {/* Mobile Sidebar (overlay) */}
         {sidebarOpen && (
-          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
-            <ConversationHistory
-              key={refreshKey}
-              currentConversationId={selectedConversationId}
-              onConversationSelect={handleConversationSelect}
-              onNewChat={handleNewChat}
-              isOpen={sidebarOpen}
-              onToggle={() => setSidebarOpen(!sidebarOpen)}
+          <>
+            {/* Mobile backdrop - behind sidebar */}
+            <div
+              className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
+              onClick={() => setSidebarOpen(false)}
             />
-          </div>
+            <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+              <ConversationHistory
+                key={refreshKey}
+                currentConversationId={selectedConversationId}
+                onConversationSelect={handleConversationSelect}
+                onNewChat={handleNewChat}
+                isOpen={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+              />
+            </div>
+          </>
         )}
 
         {/* Main chat area */}
@@ -173,8 +179,7 @@ export default function ChatPage() {
                   title={sidebarOpen ? 'Hide history' : 'Show history'}
                 >
                   <MessageSquare className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                  <span className="font-medium text-sm lg:hidden">{sidebarOpen ? 'Hide' : 'History'}</span>
-                  <span className="hidden lg:inline font-medium text-sm">{sidebarOpen ? 'Hide' : 'History'}</span>
+                  <span className="font-medium text-sm">{sidebarOpen ? 'Hide' : 'History'}</span>
                 </button>
                 <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-slate-900 dark:text-slate-100">AI Chat</h1>
               </div>

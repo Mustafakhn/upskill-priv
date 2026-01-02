@@ -558,15 +558,15 @@ export default function JourneyDetailPage() {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               {/* Title First */}
               <Card className="mb-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
                       {currentResource.type === 'video' ? (
-                        <Video className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <Video className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0" />
                       ) : currentResource.type === 'blog' ? (
-                        <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0" />
                       ) : (
-                        <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400 flex-shrink-0" />
                       )}
                       <Badge variant="primary">{currentResource.type}</Badge>
                       <Badge variant="secondary">{currentResource.difficulty}</Badge>
@@ -577,11 +577,11 @@ export default function JourneyDetailPage() {
                         </div>
                       )}
                     </div>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 break-words">
                       {currentResource.title}
                     </h2>
                   </div>
-                  <div className="flex flex-col gap-2 relative z-10">
+                  <div className="flex flex-col gap-2 relative z-10 flex-shrink-0 sm:w-auto w-full">
                     <button
                       onClick={(e) => {
                         e.preventDefault()
@@ -591,7 +591,7 @@ export default function JourneyDetailPage() {
                       }}
                       type="button"
                       disabled={markingComplete === currentResource.id}
-                      className={`px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium relative z-10 pointer-events-auto disabled:opacity-50 disabled:cursor-not-allowed ${isResourceCompleted(currentResource.id)
+                      className={`px-3 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm font-medium relative z-10 pointer-events-auto disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ${isResourceCompleted(currentResource.id)
                         ? 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
                         : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                         }`}
@@ -618,7 +618,7 @@ export default function JourneyDetailPage() {
                       href={currentResource.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400"
+                      className="px-3 py-2 rounded-lg transition-all flex items-center justify-center gap-2 text-sm font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 whitespace-nowrap"
                     >
                       <ExternalLink className="w-5 h-5" />
                       <span>Open Source</span>

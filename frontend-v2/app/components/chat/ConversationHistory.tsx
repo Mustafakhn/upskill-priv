@@ -65,11 +65,7 @@ export default function ConversationHistory({
     return 'Chat conversation'
   }
 
-  // Only render when open (no collapsed state)
-  if (!isOpen) {
-    return null
-  }
-
+  // Always show expanded state (no collapsed state)
   return (
       <aside className="h-full w-full flex-shrink-0 bg-white dark:bg-slate-800 flex flex-col">
         {/* Header */}
