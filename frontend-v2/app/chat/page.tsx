@@ -133,17 +133,19 @@ export default function ChatPage() {
       )}
 
       <div className="flex h-full overflow-hidden relative">
-        {/* Desktop Sidebar (in flex layout) */}
-        <div className={`hidden lg:block ${sidebarOpen ? 'w-80' : 'w-12'} transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-10 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700`}>
-          <ConversationHistory
-            key={refreshKey}
-            currentConversationId={selectedConversationId}
-            onConversationSelect={handleConversationSelect}
-            onNewChat={handleNewChat}
-            isOpen={sidebarOpen}
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
-          />
-        </div>
+        {/* Desktop Sidebar (in flex layout) - only show when open */}
+        {sidebarOpen && (
+          <div className="hidden lg:block w-80 transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-10 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+            <ConversationHistory
+              key={refreshKey}
+              currentConversationId={selectedConversationId}
+              onConversationSelect={handleConversationSelect}
+              onNewChat={handleNewChat}
+              isOpen={sidebarOpen}
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+            />
+          </div>
+        )}
 
         {/* Mobile Sidebar (overlay) */}
         {sidebarOpen && (
@@ -172,6 +174,7 @@ export default function ChatPage() {
                 >
                   <MessageSquare className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                   <span className="font-medium text-sm lg:hidden">{sidebarOpen ? 'Hide' : 'History'}</span>
+                  <span className="hidden lg:inline font-medium text-sm">{sidebarOpen ? 'Hide' : 'History'}</span>
                 </button>
                 <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-slate-900 dark:text-slate-100">AI Chat</h1>
               </div>

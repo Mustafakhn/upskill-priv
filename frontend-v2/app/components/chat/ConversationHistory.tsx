@@ -65,25 +65,9 @@ export default function ConversationHistory({
     return 'Chat conversation'
   }
 
-  // Collapsed state
+  // Only render when open (no collapsed state)
   if (!isOpen) {
-    return (
-      <div className="h-full w-full flex-shrink-0 bg-white dark:bg-slate-800 flex flex-col">
-        <button
-          onClick={onToggle}
-          className="w-full h-14 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors duration-200 group relative border-b border-slate-200 dark:border-slate-700"
-          title="Chat History"
-        >
-          <MessageSquare className="w-5 h-5 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors" />
-          <div className="absolute left-full ml-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-lg">
-            <div className="font-medium">Chat History</div>
-            {conversations.length > 0 && (
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1">{conversations.length} conversations</div>
-            )}
-          </div>
-        </button>
-      </div>
-    )
+    return null
   }
 
   return (
