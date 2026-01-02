@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, X, Sparkles, LogOut, User, Crown, Shield } from 'lucide-react'
+import { Menu, X, LogOut, User, Crown, Shield } from 'lucide-react'
+import Logo from '../common/Logo'
 import ThemeToggle from './ThemeToggle'
 import Button from '../common/Button'
 import { useAuth } from '../../hooks/useAuth'
@@ -47,14 +48,7 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:from-teal-700 group-hover:to-cyan-700 transition-all duration-300">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 dark:from-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">
-              Inurek
-            </span>
-          </Link>
+          <Logo size="md" />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">

@@ -3,7 +3,8 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Mail, Lock, Sparkles } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
+import Logo from '../components/common/Logo'
 import Button from '../components/common/Button'
 import Card from '../components/common/Card'
 import { useAuth } from '../hooks/useAuth'
@@ -49,14 +50,9 @@ export default function RegisterPage() {
       <div className="max-w-md w-full px-4">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 dark:from-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">
-              Inurek
-            </span>
-          </Link>
+          <div className="mb-6 flex justify-center">
+            <Logo size="lg" />
+          </div>
           <h1 className="text-3xl font-bold mb-2">Sign Up</h1>
           <p className="text-slate-600 dark:text-slate-400">
             Create your account and start learning anything you want

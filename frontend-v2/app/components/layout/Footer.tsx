@@ -2,7 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Github, Twitter, Linkedin, Mail, Sparkles } from 'lucide-react'
+import { Github, Twitter, Linkedin, Mail } from 'lucide-react'
+import Logo from '../common/Logo'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -29,7 +30,7 @@ export default function Footer() {
     { name: 'GitHub', icon: Github, href: 'https://github.com' },
     { name: 'Twitter', icon: Twitter, href: 'https://twitter.com' },
     { name: 'LinkedIn', icon: Linkedin, href: 'https://linkedin.com' },
-    { name: 'Email', icon: Mail, href: 'mailto:hello@inurek.com' },
+    { name: 'Email', icon: Mail, href: 'mailto:hello@upskill.inurek.com' },
   ]
 
   return (
@@ -38,14 +39,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-teal-600 to-cyan-600">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 dark:from-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">
-                Inurek
-              </span>
-            </Link>
+            <div className="mb-4">
+              <Logo size="md" />
+            </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 max-w-sm">
               Master any skill with AI-powered learning paths. From cooking to coding, guitar to gardening - find the best resources curated just for you.
             </p>
@@ -118,7 +114,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
           <p className="text-center text-sm text-slate-600 dark:text-slate-400">
-            © {currentYear} Inurek. All rights reserved. Made with ❤️ for learners worldwide.
+            © {currentYear} Upskill. All rights reserved. Made with ❤️ for learners worldwide.
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Sparkles, Target, Users, Zap } from 'lucide-react'
+import { Target, Users, Zap } from 'lucide-react'
+import Image from 'next/image'
 import Card from '../components/common/Card'
 
 export default function AboutPage() {
@@ -34,7 +35,7 @@ export default function AboutPage() {
           <h1 className="text-4xl sm:text-5xl font-bold mb-6">
             About{' '}
             <span className="bg-gradient-to-r from-teal-600 to-cyan-600 dark:from-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">
-              Inurek
+              Upskill
             </span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400">
@@ -48,8 +49,18 @@ export default function AboutPage() {
           {features.map((feature, index) => (
             <Card key={index} hoverable>
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-teal-600 to-cyan-600">
-                  <feature.icon className="w-6 h-6 text-white" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center">
+                  {feature.icon === 'bulb' ? (
+                    <Image
+                      src="/upskill-logo.svg"
+                      alt="Bulb Icon"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 object-contain"
+                    />
+                  ) : (
+                    <feature.icon className="w-6 h-6 text-white" />
+                  )}
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
@@ -59,7 +70,8 @@ export default function AboutPage() {
                 </div>
               </div>
             </Card>
-          ))}
+            )
+          })}
         </div>
 
         {/* Mission */}
@@ -71,7 +83,7 @@ export default function AboutPage() {
             Where do I even start?
           </p>
           <p className="text-slate-600 dark:text-slate-400 mb-4">
-            Inurek solves this problem. We use AI to understand your learning goals and create personalized
+            Upskill solves this problem. We use AI to understand your learning goals and create personalized
             roadmaps with the best resources from across the internet - all organized in a clear, step-by-step path.
           </p>
           <p className="text-slate-600 dark:text-slate-400">

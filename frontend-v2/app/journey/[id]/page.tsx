@@ -445,15 +445,7 @@ export default function JourneyDetailPage() {
 
   return (
     <div className="fixed top-16 inset-x-0 bottom-0 bg-slate-50 dark:bg-slate-900 overflow-hidden">
-      {/* Mobile backdrop when roadmap is open */}
-      {roadmapOpen && (
-        <div
-          className="lg:hidden fixed top-16 inset-x-0 bottom-0 bg-black/50 backdrop-blur-md z-40"
-          onClick={() => setRoadmapOpen(false)}
-        />
-      )}
-
-      <div className="flex h-full overflow-hidden relative z-10">
+      <div className="flex h-full overflow-hidden relative">
         {/* Desktop Roadmap Sidebar (in flex layout) */}
         <div className={`hidden lg:block ${roadmapOpen ? 'w-80' : 'w-12'} transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-10`}>
           <RoadmapSidebar
@@ -468,20 +460,27 @@ export default function JourneyDetailPage() {
 
         {/* Mobile Roadmap Sidebar (overlay) */}
         {roadmapOpen && (
-          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl">
-            <RoadmapSidebar
-              journey={journey}
-              currentResourceIndex={currentResourceIndex}
-              onResourceClick={handleResourceClick}
-              progressByResource={progress?.progress_by_resource}
-              isOpen={roadmapOpen}
-              onToggle={() => setRoadmapOpen(!roadmapOpen)}
+          <>
+            {/* Mobile backdrop when roadmap is open - behind sidebar */}
+            <div
+              className="lg:hidden fixed top-16 left-80 right-0 bottom-0 bg-black/50 backdrop-blur-md z-40"
+              onClick={() => setRoadmapOpen(false)}
             />
-          </div>
+            <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800">
+              <RoadmapSidebar
+                journey={journey}
+                currentResourceIndex={currentResourceIndex}
+                onResourceClick={handleResourceClick}
+                progressByResource={progress?.progress_by_resource}
+                isOpen={roadmapOpen}
+                onToggle={() => setRoadmapOpen(!roadmapOpen)}
+              />
+            </div>
+          </>
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0 w-full">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 w-full relative z-10">
           {/* Header */}
           <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
             <div className="flex items-center justify-between">
