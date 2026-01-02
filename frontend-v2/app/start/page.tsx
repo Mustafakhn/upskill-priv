@@ -27,7 +27,7 @@ function StartPageContent() {
   const [journeyId, setJourneyId] = useState<number | null>(null)
   const [showFormatSelector, setShowFormatSelector] = useState(false)
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [exampleTopics, setExampleTopics] = useState<string[]>(['Learn Python', 'Master Guitar', 'Italian Cooking', 'Digital Marketing'])
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -256,32 +256,62 @@ function StartPageContent() {
   }
 
   return (
-    <div className="fixed top-16 inset-x-0 bottom-0 flex overflow-hidden">
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-80' : 'w-12'} transition-all duration-300 border-r border-slate-200 dark:border-slate-700 overflow-hidden flex-shrink-0`}>
-        <ConversationHistory
-          key={refreshKey}
-          currentConversationId={selectedConversationId}
-          onConversationSelect={handleConversationSelect}
-          onNewChat={handleNewChat}
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-        />
-      </div>
+    <div className="fixed top-16 inset-x-0 bottom-0 bg-slate-50 dark:bg-slate-900 overflow-hidden">
+      {/* Desktop Sidebar (overlay when open) */}
+      {sidebarOpen && (
+        <>
+          {/* Desktop backdrop - behind sidebar */}
+          <div
+            className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+            <ConversationHistory
+              key={refreshKey}
+              currentConversationId={selectedConversationId}
+              onConversationSelect={handleConversationSelect}
+              onNewChat={handleNewChat}
+              isOpen={sidebarOpen}
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+            />
+          </div>
+        </>
+      )}
+
+      {/* Mobile Sidebar (overlay) */}
+      {sidebarOpen && (
+        <>
+          {/* Mobile backdrop - behind sidebar */}
+          <div
+            className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+            <ConversationHistory
+              key={refreshKey}
+              currentConversationId={selectedConversationId}
+              onConversationSelect={handleConversationSelect}
+              onNewChat={handleNewChat}
+              isOpen={sidebarOpen}
+              onToggle={() => setSidebarOpen(!sidebarOpen)}
+            />
+          </div>
+        </>
+      )}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
         {/* Header - Fixed */}
         <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
-            {/* {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors lg:hidden"
-              >
-                <MessageSquare className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-              </button>
-            )} */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 flex-shrink-0 transition-colors"
+              title={sidebarOpen ? 'Hide history' : 'Show history'}
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-sm font-medium">{sidebarOpen ? 'Hide' : 'History'}</span>
+            </button>
             <div className="text-center flex-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-sm font-medium mb-2">
                 <Image
