@@ -54,7 +54,7 @@ export async function subscribeToPushNotifications(
     if (!subscription) {
       // Request permission first
       const permission = await requestNotificationPermission()
-      if (permission !== 'granted') {
+      if (!permission) {
         console.warn('Notification permission not granted')
         return null
       }
