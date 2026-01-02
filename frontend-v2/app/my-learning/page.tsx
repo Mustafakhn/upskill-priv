@@ -116,55 +116,59 @@ export default function MyLearningPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl sm:text-4xl font-bold">My Learning</h1>
-            {user && !user.is_premium && (
-              <Button
-                variant="primary"
-                size="sm"
-                icon={<Crown className="w-4 h-4" />}
-                onClick={async () => {
-                  if (user.premium_requested) {
-                    alert('You have already requested premium upgrade. Please wait for admin approval.')
-                    return
-                  }
-                  setRequestingPremium(true)
-                  try {
-                    await apiClient.requestPremium()
-                    alert('Premium upgrade requested successfully! An admin will review your request.')
-                    // Refresh user data
-                    window.location.reload()
-                  } catch (error: any) {
-                    alert(error?.response?.data?.detail || 'Failed to request premium upgrade. Please try again.')
-                  } finally {
-                    setRequestingPremium(false)
-                  }
-                }}
-                disabled={requestingPremium || user.premium_requested}
-              >
-                {user.premium_requested ? 'Request Pending' : 'Upgrade to Premium'}
-              </Button>
-            )}
-            {user?.is_premium && (
-              <Badge variant="success" className="flex items-center gap-1">
-                <Crown className="w-4 h-4" />
-                Premium
-              </Badge>
-            )}
+        <div className="mb-4 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">My Learning</h1>
+            <div className="flex items-center gap-2">
+              {user && !user.is_premium && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={<Crown className="w-3 h-3 sm:w-4 sm:h-4" />}
+                  onClick={async () => {
+                    if (user.premium_requested) {
+                      alert('You have already requested premium upgrade. Please wait for admin approval.')
+                      return
+                    }
+                    setRequestingPremium(true)
+                    try {
+                      await apiClient.requestPremium()
+                      alert('Premium upgrade requested successfully! An admin will review your request.')
+                      // Refresh user data
+                      window.location.reload()
+                    } catch (error: any) {
+                      alert(error?.response?.data?.detail || 'Failed to request premium upgrade. Please try again.')
+                    } finally {
+                      setRequestingPremium(false)
+                    }
+                  }}
+                  disabled={requestingPremium || user.premium_requested}
+                  className="text-xs sm:text-sm"
+                >
+                  <span className="hidden sm:inline">{user.premium_requested ? 'Request Pending' : 'Upgrade to Premium'}</span>
+                  <span className="sm:hidden">{user.premium_requested ? 'Pending' : 'Premium'}</span>
+                </Button>
+              )}
+              {user?.is_premium && (
+                <Badge variant="success" className="flex items-center gap-1 text-xs sm:text-sm">
+                  <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
+                  Premium
+                </Badge>
+              )}
+            </div>
           </div>
-          <p className="text-slate-600 dark:text-slate-400">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
             Track your progress and continue your learning journey
             {user && !user.is_premium && (
-              <span className="block mt-2 text-sm">
+              <span className="block mt-1 sm:mt-2 text-xs sm:text-sm">
                 {user.free_journeys_used} / 5 free journeys used
               </span>
             )}
             {user?.is_premium && (
-              <span className="block mt-2 text-sm text-teal-600 dark:text-teal-400">
+              <span className="block mt-1 sm:mt-2 text-xs sm:text-sm text-teal-600 dark:text-teal-400">
                 Unlimited journeys with Premium
               </span>
             )}
@@ -173,57 +177,57 @@ export default function MyLearningPage() {
 
         {/* Stats */}
         {journeys.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-teal-100 dark:bg-teal-900/30">
-                  <BookOpen className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-8">
+            <Card className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-3 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex-shrink-0">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-teal-600 dark:text-teal-400" />
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">{journeys.length}</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Total Journeys</div>
+                <div className="min-w-0">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">{journeys.length}</div>
+                  <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">Total Journeys</div>
                 </div>
               </div>
             </Card>
 
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                  <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <Card className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex-shrink-0">
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">
+                <div className="min-w-0">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {journeys.filter(j => j.status === 'ready').length}
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">In Progress</div>
+                  <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">In Progress</div>
                 </div>
               </div>
             </Card>
 
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
-                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <Card className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-3 rounded-lg bg-green-100 dark:bg-green-900/30 flex-shrink-0">
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600 dark:text-green-400" />
                 </div>
-                <div>
-                  <div className="text-2xl font-bold">
+                <div className="min-w-0">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                     {journeys.filter(j => j.status === 'completed').length}
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Completed</div>
+                  <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">Completed</div>
                 </div>
               </div>
             </Card>
 
-            <Card>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                  <Clock className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <Card className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-2 sm:p-3 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex-shrink-0">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <div>
-            <div className="text-2xl font-bold">
-              {journeys.reduce((sum, j) => sum + (j.resources?.length || j.resource_count || 0), 0)}
-            </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Total Resources</div>
+                <div className="min-w-0">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
+                    {journeys.reduce((sum, j) => sum + (j.resources?.length || j.resource_count || 0), 0)}
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">Total Resources</div>
                 </div>
               </div>
             </Card>
@@ -232,67 +236,74 @@ export default function MyLearningPage() {
 
         {/* Journeys List */}
         {journeys.length === 0 ? (
-          <Card className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-              <BookOpen className="w-8 h-8 text-slate-400" />
+          <Card className="text-center py-8 sm:py-12">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">No Learning Journeys Yet</h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">No Learning Journeys Yet</h3>
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 sm:mb-6 px-4">
               Start your first learning journey and master any skill you want
             </p>
             <Button
               variant="primary"
-              icon={<Plus className="w-5 h-5" />}
+              size="sm"
+              icon={<Plus className="w-4 h-4 sm:w-5 sm:h-5" />}
               onClick={() => router.push('/start')}
             >
               Start Learning
             </Button>
           </Card>
         ) : (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Your Journeys</h2>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-semibold">Your Journeys</h2>
               <Button
                 variant="primary"
                 size="sm"
-                icon={<Plus className="w-4 h-4" />}
+                icon={<Plus className="w-3 h-3 sm:w-4 sm:h-4" />}
                 onClick={() => router.push('/start')}
+                className="text-xs sm:text-sm"
               >
-                New Journey
+                <span className="hidden sm:inline">New Journey</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
               {journeys.map((journey) => (
                 <Card
                   key={journey.id}
                   hoverable
                   clickable
                   onClick={() => router.push(`/journey/${journey.id}`)}
+                  className="p-4 sm:p-6"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold mb-1">{journey.topic}</h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg lg:text-xl font-semibold mb-1 truncate">{journey.topic}</h3>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
                         {journey.goal}
                       </p>
                     </div>
-                    <Badge variant={getStatusColor(journey.status) as 'primary' | 'secondary' | 'success' | 'warning' | 'danger'}>
+                    <Badge 
+                      variant={getStatusColor(journey.status) as 'primary' | 'secondary' | 'success' | 'warning' | 'danger'}
+                      className="text-xs sm:text-sm flex-shrink-0"
+                    >
                       {getStatusLabel(journey.status)}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
                     <div className="flex items-center gap-1">
-                      <BookOpen className="w-4 h-4" />
+                      <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                       <span>{journey.resources?.length || journey.resource_count || 0} resources</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Badge variant="secondary">{journey.level}</Badge>
+                      <Badge variant="secondary" className="text-xs">{journey.level}</Badge>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">
                       {journey.status === 'ready' && (
                         <Button
@@ -302,7 +313,7 @@ export default function MyLearningPage() {
                             e.stopPropagation()
                             router.push(`/journey/${journey.id}/preview`)
                           }}
-                          className="flex-1"
+                          className="flex-1 text-xs sm:text-sm"
                         >
                           Preview
                         </Button>
@@ -318,7 +329,7 @@ export default function MyLearningPage() {
                             router.push(`/journey/${journey.id}/preview`)
                           }
                         }}
-                        className="flex-1"
+                        className="flex-1 text-xs sm:text-sm"
                       >
                         {journey.status === 'ready' ? 'Continue' : 'View Status'}
                       </Button>

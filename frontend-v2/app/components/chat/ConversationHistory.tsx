@@ -87,38 +87,30 @@ export default function ConversationHistory({
   }
 
   return (
-    <>
-      {/* Overlay for mobile - positioned to not cover sidebar */}
-      {isOpen && onToggle && (
-        <div
-          className="fixed top-0 right-0 bottom-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-          style={{ left: '320px' }}
-          onClick={onToggle}
-        />
-      )}
-
-      {/* Sidebar - higher z-index than overlay */}
-      <aside className="h-full w-full flex-shrink-0 bg-white dark:bg-slate-800 flex flex-col relative z-50">
+      <aside className="h-full w-full flex-shrink-0 bg-white dark:bg-slate-800 flex flex-col">
         {/* Header */}
-        <div className="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Chat History</h2>
+        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 dark:text-teal-400" />
+            <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-slate-100">Chat History</h2>
+          </div>
           {onToggle && (
             <button
               onClick={onToggle}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               title="Collapse history"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           )}
         </div>
 
         {/* New Chat Button */}
         {onNewChat && (
-          <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-700">
+          <div className="px-4 py-2 sm:py-3 border-b border-slate-200 dark:border-slate-700">
             <button
               onClick={onNewChat}
-              className="w-full px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              className="w-full px-3 py-2 sm:px-4 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
             >
               + New Chat
             </button>
@@ -128,12 +120,12 @@ export default function ConversationHistory({
         {/* Conversations list */}
         <div className="flex-1 overflow-y-auto py-2 min-h-0">
           {loading ? (
-            <div className="p-4 text-center">
+            <div className="p-3 sm:p-4 text-center">
               <Loading size="sm" text="Loading..." />
             </div>
           ) : conversations.length === 0 ? (
-            <div className="p-4 text-center">
-              <p className="text-slate-600 dark:text-slate-400 text-sm">No conversations yet</p>
+            <div className="p-3 sm:p-4 text-center">
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">No conversations yet</p>
             </div>
           ) : (
             <div className="space-y-1 px-2">
@@ -147,7 +139,7 @@ export default function ConversationHistory({
                     }
                   }}
                   className={`
-                    w-full text-left p-3 rounded-lg transition-all duration-150 border
+                    w-full text-left p-2.5 sm:p-3 rounded-lg transition-all duration-150 border
                     ${
                       currentConversationId === conv.id
                         ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 shadow-sm'
@@ -155,15 +147,15 @@ export default function ConversationHistory({
                     }
                   `}
                 >
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-1 sm:mb-1.5">
                     <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{formatConversationTime(conv.updated_at)}</span>
                     {conv.journey_id && (
-                      <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded text-xs font-medium">
+                      <span className="px-1.5 sm:px-2 py-0.5 bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded text-xs font-medium">
                         Done
                       </span>
                     )}
                   </div>
-                  <p className={`text-sm truncate font-medium ${
+                  <p className={`text-xs sm:text-sm truncate font-medium ${
                     currentConversationId === conv.id 
                       ? 'text-teal-600 dark:text-teal-400' 
                       : 'text-slate-700 dark:text-slate-300'
