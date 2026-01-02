@@ -45,19 +45,35 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-        
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Auto-generate public key from private key if not provided
-        if self.VAPID_PRIVATE_KEY and not self.VAPID_PUBLIC_KEY:
-            try:
-                from app.utils.vapid import get_public_key_from_private, format_vapid_private_key
-                formatted_key = format_vapid_private_key(self.VAPID_PRIVATE_KEY)
-                public_key = get_public_key_from_private(formatted_key)
-                if public_key:
-                    self.VAPID_PUBLIC_KEY = public_key
-            except Exception as e:
-                print(f"Warning: Could not generate VAPID public key: {e}")
+        case_sensitive = False
 
 
+# Create settings instance
 settings = Settings()
+
+# Auto-generate public key from private key if not provided
+if settings.VAPID_PRIVATE_KEY and not settings.VAPID_PUBLIC_KEY:
+    try:
+        from app.utils.vapid import get_public_key_from_private, format_vapid_private_key
+        formatted_key = format_vapid_private_key(settings.VAPID_PRIVATE_KEY)
+        public_key = get_public_key_from_private(formatted_key)
+        if public_key:
+            settings.VAPID_PUBLIC_KEY = public_key
+            print(f"✓ Generated VAPID public key from private key")
+        else:
+            print(f"⚠ Warning: Could not generate VAPID public key")
+    except Exception as e:
+        print(f"⚠ Warning: Could not generate VAPID public key: {e}")
+        import traceback
+        traceback.print_exc()
+
+# Debug: Print VAPID key status (without showing the actual key)
+if settings.VAPID_PRIVATE_KEY:
+    print(f"✓ VAPID_PRIVATE_KEY is configured (length: {len(settings.VAPID_PRIVATE_KEY)})")
+else:
+    print(f"⚠ VAPID_PRIVATE_KEY is not configured")
+
+if settings.VAPID_PUBLIC_KEY:
+    print(f"✓ VAPID_PUBLIC_KEY is configured (length: {len(settings.VAPID_PUBLIC_KEY)})")
+else:
+    print(f"⚠ VAPID_PUBLIC_KEY is not configured")
