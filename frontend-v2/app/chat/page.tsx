@@ -130,10 +130,10 @@ export default function ChatPage() {
           <>
             {/* Desktop backdrop - behind sidebar */}
             <div
-              className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40 transition-opacity duration-300"
+              className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 ease-in-out overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 animate-slide-left">
+            <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
               <ConversationHistory
                 key={refreshKey}
                 currentConversationId={selectedConversationId}
@@ -151,10 +151,10 @@ export default function ChatPage() {
           <>
             {/* Mobile backdrop - behind sidebar */}
             <div
-              className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40 transition-opacity duration-300"
+              className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 ease-in-out overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 animate-slide-left">
+            <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
               <ConversationHistory
                 key={refreshKey}
                 currentConversationId={selectedConversationId}

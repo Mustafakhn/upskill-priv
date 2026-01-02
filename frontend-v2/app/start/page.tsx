@@ -262,10 +262,10 @@ function StartPageContent() {
         <>
           {/* Desktop backdrop - behind sidebar */}
           <div
-            className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40 transition-opacity duration-300"
+            className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 ease-in-out overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 animate-slide-left">
+          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
             <ConversationHistory
               key={refreshKey}
               currentConversationId={selectedConversationId}
@@ -283,10 +283,10 @@ function StartPageContent() {
         <>
           {/* Mobile backdrop - behind sidebar */}
           <div
-            className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40 transition-opacity duration-300"
+            className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 ease-in-out overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 animate-slide-left">
+          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
             <ConversationHistory
               key={refreshKey}
               currentConversationId={selectedConversationId}
@@ -300,7 +300,7 @@ function StartPageContent() {
       )}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 h-100">
         {/* Header - Fixed */}
         <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
@@ -334,7 +334,7 @@ function StartPageContent() {
         </div>
 
         {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0 content-center">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             {/* Chat Container */}
             {messages.length === 0 ? (
@@ -496,7 +496,7 @@ function StartPageContent() {
 
         {/* Input - Fixed at bottom */}
         {!isReady && (
-          <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 mt-auto">
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <div className="max-w-4xl mx-auto">
               <div className="flex gap-2">
                 <input
