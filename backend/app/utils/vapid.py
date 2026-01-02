@@ -10,7 +10,7 @@ import base64
 def get_public_key_from_private(private_key_pem: str) -> str:
     """Extract public key from VAPID private key"""
     try:
-        # Load private key (try PEM first, then DER)
+        # Load private key (try PEM first)
         private_key = None
         try:
             private_key = serialization.load_pem_private_key(
@@ -18,17 +18,34 @@ def get_public_key_from_private(private_key_pem: str) -> str:
                 password=None,
                 backend=default_backend()
             )
-        except:
-            # Try loading as DER (base64 decoded)
+        except Exception as e:
+            # If PEM loading fails, try to handle as raw base64url
             try:
-                key_bytes = base64.b64decode(private_key_pem)
-                private_key = serialization.load_der_private_key(
-                    key_bytes,
-                    password=None,
-                    backend=default_backend()
-                )
-            except:
-                raise ValueError("Could not parse private key")
+                # Convert base64url to standard base64
+                key_standard = private_key_pem.replace('-', '+').replace('_', '/')
+                padding = len(key_standard) % 4
+                if padding:
+                    key_standard += '=' * (4 - padding)
+                
+                # Decode and try to create EC key
+                key_bytes = base64.b64decode(key_standard)
+                if len(key_bytes) == 32:
+                    # This is a raw private key for P-256 curve
+                    from cryptography.hazmat.primitives.asymmetric import ec
+                    private_key = ec.derive_private_key(
+                        int.from_bytes(key_bytes, 'big'),
+                        ec.SECP256R1(),
+                        default_backend()
+                    )
+                else:
+                    # Try loading as DER
+                    private_key = serialization.load_der_private_key(
+                        key_bytes,
+                        password=None,
+                        backend=default_backend()
+                    )
+            except Exception as e2:
+                raise ValueError(f"Could not parse private key: {e}, {e2}")
         
         # Get public key
         public_key = private_key.public_key()
@@ -59,11 +76,18 @@ def format_vapid_private_key(key: str) -> str:
     if key.startswith('-----BEGIN'):
         return key
     
-    # pywebpush can accept the key in different formats
-    # Try to handle base64 format by converting to PEM
+    # VAPID keys are typically provided as base64url (URL-safe base64)
+    # Convert base64url to standard base64 first
     try:
-        # Try to decode to see if it's valid base64
-        decoded = base64.b64decode(key)
+        # Replace URL-safe characters with standard base64 characters
+        # Add padding if needed
+        key_standard = key.replace('-', '+').replace('_', '/')
+        padding = len(key_standard) % 4
+        if padding:
+            key_standard += '=' * (4 - padding)
+        
+        # Decode base64 to get raw bytes
+        decoded = base64.b64decode(key_standard)
         
         # Try to load as DER and convert to PEM
         from cryptography.hazmat.primitives import serialization
@@ -81,14 +105,32 @@ def format_vapid_private_key(key: str) -> str:
                 encryption_algorithm=serialization.NoEncryption()
             )
             return pem.decode('utf-8')
-        except:
-            # If DER loading fails, format as PEM with proper line breaks
-            # Split into 64-char lines
-            formatted_key = '\n'.join([key[i:i+64] for i in range(0, len(key), 64)])
-            return f"""-----BEGIN PRIVATE KEY-----
-{formatted_key}
------END PRIVATE KEY-----"""
+        except Exception as e:
+            # If DER loading fails, the key might be in a different format
+            # Try to generate EC key from raw bytes
+            try:
+                from cryptography.hazmat.primitives.asymmetric import ec
+                # For VAPID, we need to create an EC private key
+                # The key should be 32 bytes for P-256 curve
+                if len(decoded) == 32:
+                    numbers = ec.derive_private_key(
+                        int.from_bytes(decoded, 'big'),
+                        ec.SECP256R1(),
+                        default_backend()
+                    )
+                    pem = numbers.private_bytes(
+                        encoding=serialization.Encoding.PEM,
+                        format=serialization.PrivateFormat.PKCS8,
+                        encryption_algorithm=serialization.NoEncryption()
+                    )
+                    return pem.decode('utf-8')
+                else:
+                    raise ValueError(f"Invalid key length: {len(decoded)} bytes, expected 32")
+            except Exception as e2:
+                print(f"Warning: Could not format VAPID key as PEM: {e2}")
+                # Return the original key - pywebpush might accept it
+                return key
     except Exception as e:
-        # If all else fails, return as is (pywebpush might accept raw base64)
+        # If all else fails, return as is (pywebpush might accept raw base64url)
         print(f"Warning: Could not format VAPID key, using as-is: {e}")
         return key
