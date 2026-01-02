@@ -25,7 +25,7 @@ services:
       context: ./frontend-v2
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://backend:8000
+        NEXT_PUBLIC_API_URL: https://be-upskill.inurek.com
     container_name: learning-platform-frontend
     ports:
       - "3003:3000"
