@@ -172,23 +172,23 @@ export default function ChatPage() {
           {/* Header */}
           <div className="flex-shrink-0 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-2 flex-shrink-0"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 flex-shrink-0 transition-colors"
                   title={sidebarOpen ? 'Hide history' : 'Show history'}
                 >
-                  <MessageSquare className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                  <span className="font-medium text-sm">{sidebarOpen ? 'Hide' : 'History'}</span>
+                  <MessageSquare className="w-5 h-5" />
+                  <span className="text-sm font-medium">{sidebarOpen ? 'Hide' : 'History'}</span>
                 </button>
-                <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-slate-900 dark:text-slate-100">AI Chat</h1>
+                <h1 className="text-base sm:text-lg lg:text-xl font-semibold text-slate-900 dark:text-slate-100 truncate">AI Chat</h1>
               </div>
               {conversationId && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleNewChat}
-                  className="text-xs sm:text-sm"
+                  className="text-xs sm:text-sm flex-shrink-0"
                 >
                   <span className="hidden sm:inline">New Chat</span>
                   <span className="sm:hidden">New</span>
