@@ -5,6 +5,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import LayoutContent from "./components/layout/LayoutContent";
+import ServiceWorkerSetup from "./components/common/ServiceWorkerRegistration";
 
 export const metadata: Metadata = {
   title: "Upskill - Personalized Learning Platform",
@@ -38,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
+        <ServiceWorkerSetup />
         <ThemeProvider>
           <AuthProvider>
             <Header />

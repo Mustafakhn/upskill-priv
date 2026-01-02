@@ -10,6 +10,7 @@ import Loading from '../components/common/Loading'
 import ConversationHistory from '../components/chat/ConversationHistory'
 import { apiClient, ChatMessage } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
+import { requestNotificationPermission, registerServiceWorker } from '../utils/notifications'
 
 function StartPageContent() {
   const router = useRouter()
@@ -30,6 +31,7 @@ function StartPageContent() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [exampleTopics, setExampleTopics] = useState<string[]>(['Learn Python', 'Master Guitar', 'Italian Cooking', 'Digital Marketing'])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const journeyStatusIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Prevent body scroll when component mounts
   useEffect(() => {
@@ -120,6 +122,16 @@ function StartPageContent() {
       if (response.ready && response.journey_id) {
         setIsReady(true)
         setJourneyId(response.journey_id)
+
+        // Request notification permission when journey creation starts
+        try {
+          await registerServiceWorker()
+          await requestNotificationPermission()
+          // Start polling for journey status
+          startJourneyStatusPolling(response.journey_id)
+        } catch (error) {
+          console.error('Failed to set up notifications:', error)
+        }
       }
     } catch (error) {
       console.error('Chat error:', error)
@@ -175,6 +187,48 @@ function StartPageContent() {
     }
   }
 
+  const startJourneyStatusPolling = (jid: number) => {
+    // Clear any existing interval
+    if (journeyStatusIntervalRef.current) {
+      clearInterval(journeyStatusIntervalRef.current)
+    }
+
+    // Poll every 10 seconds
+    journeyStatusIntervalRef.current = setInterval(async () => {
+      try {
+        const journey = await apiClient.getJourney(jid)
+        if (journey && journey.status === 'ready') {
+          // Journey is ready - show notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Journey Ready! 🎉', {
+              body: `Your learning journey for "${journey.topic}" is ready to start!`,
+              icon: '/upskill-logo.svg',
+              badge: '/upskill-logo.svg',
+              tag: `journey-${jid}`,
+              data: { journeyId: jid, url: `/journey/${jid}` }
+            })
+          }
+          // Clear polling
+          if (journeyStatusIntervalRef.current) {
+            clearInterval(journeyStatusIntervalRef.current)
+            journeyStatusIntervalRef.current = null
+          }
+        }
+      } catch (error) {
+        console.error('Error checking journey status:', error)
+      }
+    }, 10000) // Poll every 10 seconds
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (journeyStatusIntervalRef.current) {
+        clearInterval(journeyStatusIntervalRef.current)
+      }
+    }
+  }, [])
+
   const handleNewChat = () => {
     setConversationId(null)
     setSelectedConversationId(null)
@@ -182,6 +236,11 @@ function StartPageContent() {
     setIsReady(false)
     setJourneyId(null)
     setSuggestions([])
+    // Clear any polling intervals
+    if (journeyStatusIntervalRef.current) {
+      clearInterval(journeyStatusIntervalRef.current)
+      journeyStatusIntervalRef.current = null
+    }
   }
 
   if (authLoading || !isAuthenticated) {
