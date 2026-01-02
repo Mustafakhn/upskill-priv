@@ -15,7 +15,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Loader2
+  Loader2,
+  ArrowLeft,
+  Map
 } from 'lucide-react'
 import Card from '@/app/components/common/Card'
 import Button from '@/app/components/common/Button'
@@ -23,7 +25,7 @@ import Badge from '@/app/components/common/Badge'
 import Loading from '@/app/components/common/Loading'
 import VideoEmbed from '@/app/components/resources/VideoEmbed'
 import ArticleViewer from '@/app/components/resources/ArticleViewer'
-import LearningRoadmap from '@/app/components/learning/LearningRoadmap'
+import RoadmapSidebar from '@/app/components/learning/RoadmapSidebar'
 import ChatbotOverlay from '@/app/components/companion/ChatbotOverlay'
 import { apiClient, Journey, ProgressSummary } from '@/app/services/api'
 import { useAuth } from '@/app/hooks/useAuth'
@@ -40,6 +42,20 @@ export default function JourneyDetailPage() {
   const [currentResourceIndex, setCurrentResourceIndex] = useState(0)
   const [roadmapOpen, setRoadmapOpen] = useState(true)
   const [markingComplete, setMarkingComplete] = useState<string | null>(null)
+
+  // For mobile, default to closed roadmap
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth < 1024) {
+        setRoadmapOpen(false)
+      } else {
+        setRoadmapOpen(true)
+      }
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
   const skipTimeTrackingRef = useRef<string | null>(null)
 
   // Time tracking
@@ -428,49 +444,68 @@ export default function JourneyDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <div className="flex h-screen overflow-hidden">
-        {/* Roadmap Sidebar */}
-        <div className={`${roadmapOpen ? 'w-80' : 'w-0'
-          } transition-all duration-300 overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0`}>
-          {roadmapOpen && (
-            <div className="h-full overflow-y-auto p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Roadmap</h2>
-                <button
-                  onClick={() => setRoadmapOpen(false)}
-                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <LearningRoadmap
-                journey={journey}
-                currentResourceIndex={currentResourceIndex}
-                onResourceClick={handleResourceClick}
-                progressByResource={progress?.progress_by_resource}
-              />
-            </div>
-          )}
+    <div className="fixed top-16 inset-x-0 bottom-0 bg-slate-50 dark:bg-slate-900 overflow-hidden">
+      {/* Mobile backdrop when roadmap is open */}
+      {roadmapOpen && (
+        <div
+          className="lg:hidden fixed top-16 inset-x-0 bottom-0 bg-black/40 backdrop-blur-sm z-40"
+          onClick={() => setRoadmapOpen(false)}
+        />
+      )}
+
+      <div className="flex h-full overflow-hidden relative z-50">
+        {/* Desktop Roadmap Sidebar (in flex layout) */}
+        <div className={`hidden lg:block ${roadmapOpen ? 'w-80' : 'w-12'} transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-50`}>
+          <RoadmapSidebar
+            journey={journey}
+            currentResourceIndex={currentResourceIndex}
+            onResourceClick={handleResourceClick}
+            progressByResource={progress?.progress_by_resource}
+            isOpen={roadmapOpen}
+            onToggle={() => setRoadmapOpen(!roadmapOpen)}
+          />
         </div>
 
+        {/* Mobile Roadmap Sidebar (overlay) */}
+        {roadmapOpen && (
+          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl">
+            <RoadmapSidebar
+              journey={journey}
+              currentResourceIndex={currentResourceIndex}
+              onResourceClick={handleResourceClick}
+              progressByResource={progress?.progress_by_resource}
+              isOpen={roadmapOpen}
+              onToggle={() => setRoadmapOpen(!roadmapOpen)}
+            />
+          </div>
+        )}
+
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 w-full">
           {/* Header */}
           <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {!roadmapOpen && (
-                  <button
-                    onClick={() => setRoadmapOpen(true)}
-                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
-                  >
-                    <Menu className="w-5 h-5" />
-                  </button>
-                )}
-                <div>
-                  <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{journey.topic}</h1>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{journey.goal}</p>
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<ArrowLeft className="w-4 h-4" />}
+                  onClick={() => router.push('/my-learning')}
+                  className="flex-shrink-0"
+                >
+                  <span className="hidden sm:inline">Back to My Learning</span>
+                  <span className="sm:hidden">Back</span>
+                </Button>
+                <button
+                  onClick={() => setRoadmapOpen(!roadmapOpen)}
+                  className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 lg:hidden flex-shrink-0"
+                  title={roadmapOpen ? 'Hide roadmap' : 'Show roadmap'}
+                >
+                  <Map className="w-5 h-5" />
+                </button>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">{journey.topic}</h1>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{journey.goal}</p>
                 </div>
               </div>
             </div>

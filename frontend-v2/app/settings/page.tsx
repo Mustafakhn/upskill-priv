@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [installPrompt, setInstallPrompt] = useState<any>(null)
   const [isInstalled, setIsInstalled] = useState(false)
+  const [showInstructions, setShowInstructions] = useState(false)
 
   // Name form state
   const [name, setName] = useState('')
@@ -72,6 +73,70 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: 'Error installing app' })
     }
   }
+
+  const getInstallInstructions = () => {
+    if (typeof window === 'undefined') return null
+    
+    const userAgent = navigator.userAgent.toLowerCase()
+    
+    if (/iphone|ipad|ipod/.test(userAgent)) {
+      return {
+        title: 'Install on iOS',
+        steps: [
+          'Tap the Share button (square with arrow pointing up)',
+          'Scroll down and tap "Add to Home Screen"',
+          'Tap "Add" to confirm'
+        ]
+      }
+    } else if (/android/.test(userAgent)) {
+      return {
+        title: 'Install on Android',
+        steps: [
+          'Tap the menu button (three dots) in the top right',
+          'Tap "Install app" or "Add to Home Screen"',
+          'Confirm the installation'
+        ]
+      }
+    } else if (/chrome/.test(userAgent)) {
+      return {
+        title: 'Install in Chrome',
+        steps: [
+          'Look for the install icon (plus/⊕) in the address bar, or',
+          'Click the three-dot menu → "Install Upskill..."',
+          'Click "Install" in the dialog that appears'
+        ]
+      }
+    } else if (/firefox/.test(userAgent)) {
+      return {
+        title: 'Install in Firefox',
+        steps: [
+          'Click the menu button (three horizontal lines)',
+          'Look for "Install" option or the install icon in the address bar',
+          'Click to install the app'
+        ]
+      }
+    } else if (/edge/.test(userAgent)) {
+      return {
+        title: 'Install in Edge',
+        steps: [
+          'Look for the install icon in the address bar, or',
+          'Click the three-dot menu → "Apps" → "Install this site as an app"',
+          'Click "Install" to confirm'
+        ]
+      }
+    } else {
+      return {
+        title: 'Install this app',
+        steps: [
+          'Look for an install icon in your browser\'s address bar',
+          'Or check your browser\'s menu for "Install" or "Add to Home Screen" options',
+          'Follow the prompts to complete installation'
+        ]
+      }
+    }
+  }
+
+  const instructions = getInstallInstructions()
 
   const handleUpdateName = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -173,9 +238,30 @@ export default function SettingsPage() {
                 Install App
               </Button>
             ) : (
-              <p className="text-sm text-gray-500">
-                Install prompt not available. You can install the app from your browser&apos;s menu.
-              </p>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Automatic install prompt is not available. You can still install the app manually.
+                </p>
+                <Button 
+                  onClick={() => setShowInstructions(!showInstructions)} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  {showInstructions ? 'Hide' : 'Show'} Install Instructions
+                </Button>
+                {showInstructions && instructions && (
+                  <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                      {instructions.title}
+                    </h3>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                      {instructions.steps.map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
