@@ -145,35 +145,30 @@ Return JSON with: topic, level, goal, preferred_format, next_suggestion"""
                 temperature=0.3
             )
             
-            # Extract intent from AI response - apply defaults silently
+            # Extract intent from AI response - DO NOT apply defaults here
+            # We need to check what the user actually provided vs what we're inferring
             topic = result.get("topic", "").strip() if result.get("topic") else ""
             level = result.get("level", "").strip() if result.get("level") else ""
             goal = result.get("goal", "").strip() if result.get("goal") else ""
             
-            # Apply defaults silently (don't ask questions)
-            if not level:
-                level = "beginner"
-            if not goal and topic:
-                goal = f"Learn {topic}"
-            elif not goal:
-                goal = "Learn the topic"
+            # Store original values to check if user actually provided them
+            user_provided_level = bool(level)
+            user_provided_goal = bool(goal)
             
-            intent = {
+            # For validation, apply defaults to check completeness
+            # But we'll check readiness based on what user actually provided
+            intent_for_validation = {
                 "topic": topic,
-                "level": level,
-                "goal": goal,
+                "level": level or "beginner",  # Default for validation only
+                "goal": goal or (f"Learn {topic}" if topic else "Learn the topic"),  # Default for validation only
                 "preferred_format": result.get("preferred_format", "any").strip() if result.get("preferred_format") else "any",
                 "time_commitment": result.get("time_commitment", "1-2 hours")
             }
             
             # Validate using code-based checks (not AI-based)
-            validation = self._validate_intent(intent)
+            validation = self._validate_intent(intent_for_validation)
             
-            # Determine readiness - only topic is required, level and goal have defaults
-            # Only need topic and at least 1 user message (not 2)
-            is_ready = len(validation["missing"]) == 0 and user_message_count >= 1
-            
-            # Get next suggestions from AI response, or generate them if missing and needed
+            # Get next suggestions from AI response
             next_suggestions = result.get("next_suggestions", [])
             # Handle legacy single suggestion format
             if not isinstance(next_suggestions, list):
@@ -182,7 +177,31 @@ Return JSON with: topic, level, goal, preferred_format, next_suggestion"""
                 else:
                     next_suggestions = []
             
+            # Determine readiness:
+            # 1. Topic must be present
+            # 2. If AI is asking questions (has suggestions), we're NOT ready
+            # 3. Only mark ready if topic is present AND no questions are being asked
+            topic_present = bool(topic) and topic.lower() not in ["general learning", "learning", "topic", "unknown"]
+            has_questions = len(next_suggestions) > 0
+            
+            # If AI is asking questions, we're not ready yet
+            if has_questions:
+                is_ready = False
+            else:
+                # No questions being asked - check if we have minimum required info (just topic)
+                is_ready = topic_present and user_message_count >= 1
+            
+            # Now create the final intent with defaults applied (for when journey is created)
+            intent = {
+                "topic": topic,
+                "level": level or "beginner",  # Apply default when creating journey
+                "goal": goal or (f"Learn {topic}" if topic else "Learn the topic"),  # Apply default when creating journey
+                "preferred_format": result.get("preferred_format", "any").strip() if result.get("preferred_format") else "any",
+                "time_commitment": result.get("time_commitment", "1-2 hours")
+            }
+            
             # Generate suggestions proactively for missing information
+            # Only if we don't already have suggestions from AI
             if not is_ready and len(next_suggestions) == 0 and validation["missing"]:
                 # Generate suggestions based on what's missing
                 if "topic" in validation["missing"]:
