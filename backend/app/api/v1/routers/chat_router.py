@@ -147,7 +147,7 @@ def start_chat(
         # Link journey to conversation
         conversation_service.link_journey_to_conversation(conversation_id, journey_id)
         
-        response_text = f"Perfect! I've started creating your personalized learning journey for '{intent['topic']}'. This may take a few minutes. Your journey ID is {journey_id}."
+        response_text = f"Perfect! I've started creating your personalized learning journey for '{intent['topic']}'. This may take a few minutes."
     
     # Get next suggestions if not ready (already computed in analysis above)
     questions = None
@@ -238,7 +238,7 @@ def respond_to_chat(
         # Link journey to conversation
         conversation_service.link_journey_to_conversation(conversation_id, journey_id)
         
-        response_text = f"Perfect! I've started creating your personalized learning journey for '{intent['topic']}'. This may take a few minutes. Your journey ID is {journey_id}."
+        response_text = f"Perfect! I've started creating your personalized learning journey for '{intent['topic']}'. This may take a few minutes."
     
     # Get next suggestions if not ready (already computed in analysis above)
     questions = None

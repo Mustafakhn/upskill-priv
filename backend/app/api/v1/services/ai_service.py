@@ -115,13 +115,12 @@ CRITICAL RULES for extraction:
 - IMPORTANT: Default to null/empty for missing info - don't ask questions unless user explicitly requests help
 
 CRITICAL RULES for next_suggestions:
-- Return empty array [] by default - DO NOT proactively ask questions
-- ONLY return suggestions if the user explicitly asks for help or clarification
-- If topic is missing: return empty array [] (don't create journey, but don't ask either)
-- If level is missing: return empty array [] (default to "beginner" silently)
-- If goal is missing: return empty array [] (use topic as goal if topic is clear)
-- If preferred_format is missing: return empty array [] (default to "any" silently)
-- ONLY provide suggestions if user explicitly requests them (e.g., "help me", "what do I need", "what else")
+- ALWAYS provide suggestions if information is missing - be proactive in helping the user
+- If topic is missing: return 3-4 topic suggestions (e.g., "I want to learn Python", "I'm interested in web development")
+- If level is missing: return 3 level suggestions (e.g., "I'm a beginner", "I have intermediate experience", "I'm advanced")
+- If goal is missing: return 3-4 goal suggestions based on the topic (e.g., "I want to build web apps", "I want to get a job in this field")
+- If preferred_format is missing: return 3-4 format suggestions (e.g., "I prefer video tutorials", "I like reading articles", "I want a mix of formats")
+- Provide multiple options for variety so users can choose what fits them
 - Write as if they're QUICK SUGGESTIONS for the USER to click, NOT questions from the AI
 - ALWAYS start with "I" (first person from user's perspective)
 - NEVER use question format (no "What", "How", "Do you", "Can you", etc.)
@@ -183,13 +182,23 @@ Return JSON with: topic, level, goal, preferred_format, next_suggestion"""
                 else:
                     next_suggestions = []
             
-            # Don't generate suggestions proactively - only if user explicitly asks
-            # Only generate suggestions if topic is missing (required field)
+            # Generate suggestions proactively for missing information
             if not is_ready and len(next_suggestions) == 0 and validation["missing"]:
-                # Only suggest if topic is missing (the only truly required field)
+                # Generate suggestions based on what's missing
                 if "topic" in validation["missing"]:
                     next_suggestions = ["I want to learn Python", "I'm interested in web development", "I'd like to learn data science", "I want to learn product management"]
-                # For other missing fields, don't ask - use defaults silently
+                elif "level" in validation["missing"]:
+                    next_suggestions = ["I'm a complete beginner", "I have some experience", "I'm intermediate level", "I'm advanced"]
+                elif "goal" in validation["missing"]:
+                    topic = intent.get("topic", "this topic")
+                    next_suggestions = [
+                        f"I want to master {topic}",
+                        f"I want to build projects with {topic}",
+                        f"I want to get a job using {topic}",
+                        f"I want to understand {topic} deeply"
+                    ]
+                elif "preferred_format" in validation["missing"]:
+                    next_suggestions = ["I prefer video tutorials", "I like reading articles", "I want documentation and guides", "I want a mix of formats"]
             
             # Clean up suggestions
             cleaned_suggestions = []
@@ -364,15 +373,15 @@ Return JSON with: topic, level, goal, preferred_format, next_suggestion"""
 
 IMPORTANT RULES:
 - Respond naturally and conversationally (1-2 sentences max - be concise!)
-- DO NOT ask questions proactively - only acknowledge what the user said
 - Be friendly and engaging, like talking to a friend
-- If the user provides a topic, acknowledge it and confirm you'll create a journey
-- Use defaults silently (beginner level, learn the topic as goal) - don't ask about these
-- Once you have a topic, confirm you're ready to create the journey
+- If information is missing, acknowledge what they said and ask ONE follow-up question naturally
+- Ask about missing information in a conversational way (e.g., "What's your experience level?" or "What's your goal with this?")
+- Once you have a topic, ask about level, goal, or preferred format if missing
+- Once you have all information, confirm you're ready to create the journey
 
 {instructions}
 
-Once you have a topic, say something like: Perfect! I'll create a personalized learning journey for you."""
+Once you have all information, say something like: Perfect! I'll create a personalized learning journey for you."""
 
         # Build conversation context (last 8 messages for context)
         messages = conversation_history[-8:] + [
