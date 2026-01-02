@@ -448,14 +448,14 @@ export default function JourneyDetailPage() {
       {/* Mobile backdrop when roadmap is open */}
       {roadmapOpen && (
         <div
-          className="lg:hidden fixed top-16 inset-x-0 bottom-0 bg-black/40 backdrop-blur-sm z-40"
+          className="lg:hidden fixed top-16 inset-x-0 bottom-0 bg-black/50 backdrop-blur-md z-40"
           onClick={() => setRoadmapOpen(false)}
         />
       )}
 
-      <div className="flex h-full overflow-hidden relative z-50">
+      <div className="flex h-full overflow-hidden relative z-10">
         {/* Desktop Roadmap Sidebar (in flex layout) */}
-        <div className={`hidden lg:block ${roadmapOpen ? 'w-80' : 'w-12'} transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-50`}>
+        <div className={`hidden lg:block ${roadmapOpen ? 'w-80' : 'w-12'} transition-all duration-300 overflow-hidden flex-shrink-0 h-full relative z-10`}>
           <RoadmapSidebar
             journey={journey}
             currentResourceIndex={currentResourceIndex}
