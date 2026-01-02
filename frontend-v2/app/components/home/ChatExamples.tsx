@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import { MessageSquare, Sparkles } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
+import Image from 'next/image'
 import Card from '../common/Card'
 
 const exampleConversations = [
@@ -54,7 +55,13 @@ export default function ChatExamples() {
                 {/* AI response */}
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-white" />
+                    <Image
+                      src="/upskill-logo.svg"
+                      alt="Bulb Icon"
+                      width={16}
+                      height={16}
+                      className="w-4 h-4 object-contain"
+                    />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">AI Assistant</p>
@@ -75,7 +82,13 @@ export default function ChatExamples() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             Get Started Free
-            <Sparkles className="w-4 h-4" />
+            <Image
+              src="/upskill-logo.svg"
+              alt="Bulb Icon"
+              width={16}
+              height={16}
+              className="w-4 h-4 object-contain"
+            />
           </a>
         </div>
       </div>

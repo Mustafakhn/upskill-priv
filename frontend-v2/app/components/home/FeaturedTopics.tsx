@@ -15,8 +15,8 @@ import {
   Heart,
   Wrench,
   BookOpen,
-  Sparkles
 } from 'lucide-react'
+import Image from 'next/image'
 
 export default function FeaturedTopics() {
   const router = useRouter()
@@ -33,7 +33,7 @@ export default function FeaturedTopics() {
     { name: 'Health', icon: Heart, color: 'from-red-500 to-pink-500', emoji: '❤️' },
     { name: 'DIY & Crafts', icon: Wrench, color: 'from-yellow-500 to-orange-500', emoji: '🔨' },
     { name: 'Writing', icon: BookOpen, color: 'from-cyan-500 to-blue-500', emoji: '✍️' },
-    { name: 'Personal Growth', icon: Sparkles, color: 'from-violet-500 to-purple-500', emoji: '✨' },
+    { name: 'Personal Growth', icon: 'bulb', color: 'from-violet-500 to-purple-500', emoji: '✨' },
   ]
 
   const handleTopicClick = (topic: string) => {
@@ -62,8 +62,18 @@ export default function FeaturedTopics() {
               className="text-center p-6 group"
             >
               <div className="mb-3 flex justify-center">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${topic.color} group-hover:scale-110 transition-transform duration-300`}>
-                  <topic.icon className="w-6 h-6 text-white" />
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${topic.color} group-hover:scale-110 transition-transform duration-300 flex items-center justify-center`}>
+                  {topic.icon === 'bulb' ? (
+                    <Image
+                      src="/upskill-logo.svg"
+                      alt="Bulb Icon"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 object-contain"
+                    />
+                  ) : (
+                    <topic.icon className="w-6 h-6 text-white" />
+                  )}
                 </div>
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">

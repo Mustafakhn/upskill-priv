@@ -10,7 +10,6 @@ import {
   CheckCircle,
   Circle,
   Clock,
-  Sparkles,
   Menu,
   X,
   ChevronLeft,

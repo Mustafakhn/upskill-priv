@@ -6,7 +6,7 @@ import Card from '../components/common/Card'
 export default function AboutPage() {
   const features = [
     {
-      icon: Sparkles,
+      icon: 'bulb',
       title: 'AI-Powered Curation',
       description: 'Our AI analyzes thousands of resources to find the best content for your learning goals',
     },
@@ -70,8 +70,7 @@ export default function AboutPage() {
                 </div>
               </div>
             </Card>
-            )
-          })}
+          ))}
         </div>
 
         {/* Mission */}

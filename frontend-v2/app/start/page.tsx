@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Send, Sparkles, Loader2, MessageSquare } from 'lucide-react'
+import { Send, Loader2, MessageSquare } from 'lucide-react'
+import Image from 'next/image'
 import Button from '../components/common/Button'
 import Card from '../components/common/Card'
 import Loading from '../components/common/Loading'
@@ -220,7 +221,13 @@ function StartPageContent() {
             )} */}
             <div className="text-center flex-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-sm font-medium mb-2">
-                <Sparkles className="w-4 h-4" />
+                <Image
+                  src="/upskill-logo.svg"
+                  alt="Bulb Icon"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4 object-contain"
+                />
                 AI Learning Assistant
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -241,7 +248,13 @@ function StartPageContent() {
               <Card className="mb-3">
                 <div className="text-center py-8">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-white" />
+                    <Image
+                      src="/upskill-logo.svg"
+                      alt="Bulb Icon"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 object-contain"
+                    />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Start a Conversation</h3>
                   <p className="text-slate-600 dark:text-slate-400 mb-4">
@@ -269,7 +282,13 @@ function StartPageContent() {
                   >
                     {message.role === 'assistant' && (
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center shadow-lg">
-                        <Sparkles className="w-4 h-4 text-white" />
+                        <Image
+                          src="/upskill-logo.svg"
+                          alt="Bulb Icon"
+                          width={16}
+                          height={16}
+                          className="w-4 h-4 object-contain"
+                        />
                       </div>
                     )}
                     <div
@@ -292,7 +311,13 @@ function StartPageContent() {
                 {loading && (
                   <div className="flex items-start gap-4 justify-start">
                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-teal-600 to-cyan-600 flex items-center justify-center shadow-lg">
-                      <Sparkles className="w-4 h-4 text-white" />
+                      <Image
+                        src="/upskill-logo.svg"
+                        alt="Bulb Icon"
+                        width={16}
+                        height={16}
+                        className="w-4 h-4 object-contain"
+                      />
                     </div>
                     <div className="bg-white dark:bg-slate-800 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                       <div className="flex items-center gap-2">
