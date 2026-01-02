@@ -1,8 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ArrowRight } from 'lucide-react'
-import Image from 'next/image'
+import { ArrowRight, Bot } from 'lucide-react'
 import SearchBar from '../common/SearchBar'
 import Button from '../common/Button'
 import { useRouter } from 'next/navigation'
@@ -41,13 +40,7 @@ export default function Hero() {
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 text-sm font-medium mb-6 animate-slide-down">
-            <Image
-              src="/upskill-logo.svg"
-              alt="Bulb Icon"
-              width={16}
-              height={16}
-              className="w-4 h-4 object-contain"
-            />
+            <Bot className="w-4 h-4" />
             AI-Powered Learning Companion
           </div>
 
