@@ -262,10 +262,10 @@ function StartPageContent() {
         <>
           {/* Desktop backdrop - behind sidebar */}
           <div
-            className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
+            className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40 transition-opacity duration-300"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 ease-in-out overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 animate-slide-left">
             <ConversationHistory
               key={refreshKey}
               currentConversationId={selectedConversationId}
@@ -283,10 +283,10 @@ function StartPageContent() {
         <>
           {/* Mobile backdrop - behind sidebar */}
           <div
-            className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
+            className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40 transition-opacity duration-300"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 ease-in-out overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 animate-slide-left">
             <ConversationHistory
               key={refreshKey}
               currentConversationId={selectedConversationId}
@@ -496,7 +496,7 @@ function StartPageContent() {
 
         {/* Input - Fixed at bottom */}
         {!isReady && (
-          <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 mt-auto">
             <div className="max-w-4xl mx-auto">
               <div className="flex gap-2">
                 <input
