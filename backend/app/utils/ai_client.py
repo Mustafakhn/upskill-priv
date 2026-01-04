@@ -52,11 +52,17 @@ class AIClient:
                 json=payload,
                 timeout=120,  # Increased timeout to 120 seconds for complex queries
                 headers={"Content-Type": "application/json"},
-                stream=False
+                stream=True  # Enable streaming to handle chunked responses
             )
             response.raise_for_status()
             
-            result = response.text.strip()
+            # Read streaming response line by line
+            result_parts = []
+            for line in response.iter_lines(decode_unicode=True):
+                if line:
+                    result_parts.append(line)
+            
+            result = '\n'.join(result_parts).strip()
             
             # Handle streaming JSON format: {"thinking": "..."} or {"response": "..."}
             result = self._parse_streaming_json(result)
