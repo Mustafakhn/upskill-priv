@@ -111,10 +111,8 @@ def format_vapid_private_key(key: str) -> str:
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption()
             )
-            pem_str = pem.decode('utf-8')
-            # Ensure PEM format is clean (no extra newlines or spaces)
-            pem_str = '\n'.join(line.strip() for line in pem_str.split('\n') if line.strip())
-            return pem_str
+            # Return PEM as-is from cryptography library - it's already in correct format
+            return pem.decode('utf-8')
         else:
             # Try to load as DER format
             try:
@@ -128,9 +126,8 @@ def format_vapid_private_key(key: str) -> str:
                     format=serialization.PrivateFormat.PKCS8,
                     encryption_algorithm=serialization.NoEncryption()
                 )
-                pem_str = pem.decode('utf-8')
-                pem_str = '\n'.join(line.strip() for line in pem_str.split('\n') if line.strip())
-                return pem_str
+                # Return PEM as-is from cryptography library - it's already in correct format
+                return pem.decode('utf-8')
             except Exception as e:
                 raise ValueError(f"Invalid key format: {len(decoded)} bytes, expected 32 for raw key or valid DER format. Error: {e}")
     except Exception as e:
