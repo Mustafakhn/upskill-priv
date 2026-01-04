@@ -265,7 +265,7 @@ function StartPageContent() {
             className="hidden lg:block fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+          <div className="hidden lg:block fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
             <ConversationHistory
               key={refreshKey}
               currentConversationId={selectedConversationId}
@@ -286,7 +286,7 @@ function StartPageContent() {
             className="lg:hidden fixed top-16 left-80 bottom-0 right-0 bg-black/50 backdrop-blur-md z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 overflow-hidden h-full z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
+          <div className="lg:hidden fixed top-16 left-0 bottom-0 w-80 transition-all duration-300 z-50 shadow-2xl bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700">
             <ConversationHistory
               key={refreshKey}
               currentConversationId={selectedConversationId}

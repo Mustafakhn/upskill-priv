@@ -98,7 +98,7 @@ export default function ConversationHistory({
         )}
 
         {/* Conversations list */}
-        <div className="flex-1 overflow-y-auto py-2 min-h-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
           {loading ? (
             <div className="p-3 sm:p-4 text-center">
               <Loading size="sm" text="Loading..." />
