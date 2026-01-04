@@ -300,7 +300,7 @@ function StartPageContent() {
       )}
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 h-100">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 h-full">
         {/* Header - Fixed */}
         <div className="flex-shrink-0 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
@@ -334,7 +334,7 @@ function StartPageContent() {
         </div>
 
         {/* Scrollable content area */}
-        <div className="flex-1 overflow-y-auto min-h-0 content-center">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             {/* Chat Container */}
             {messages.length === 0 ? (
