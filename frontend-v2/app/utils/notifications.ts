@@ -134,3 +134,45 @@ export function showLocalNotification(title: string, options?: NotificationOptio
   })
 }
 
+export async function unsubscribeFromPushNotifications(
+  registration: ServiceWorkerRegistration
+): Promise<boolean> {
+  try {
+    const subscription = await registration.pushManager.getSubscription()
+    if (subscription) {
+      await subscription.unsubscribe()
+      
+      // Notify backend
+      try {
+        await apiClient.unsubscribeFromPush()
+        console.log('Unsubscribed from push notifications')
+      } catch (error) {
+        console.error('Failed to notify backend of unsubscribe:', error)
+        // Continue anyway - subscription is removed locally
+      }
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error('Failed to unsubscribe from push notifications:', error)
+    return false
+  }
+}
+
+export async function getNotificationPermissionStatus(): Promise<'granted' | 'denied' | 'default'> {
+  if (!('Notification' in window)) {
+    return 'denied'
+  }
+  return Notification.permission as 'granted' | 'denied' | 'default'
+}
+
+export async function isPushSubscribed(registration: ServiceWorkerRegistration): Promise<boolean> {
+  try {
+    const subscription = await registration.pushManager.getSubscription()
+    return subscription !== null
+  } catch (error) {
+    console.error('Failed to check push subscription:', error)
+    return false
+  }
+}
+

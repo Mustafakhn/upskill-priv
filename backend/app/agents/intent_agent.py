@@ -39,6 +39,13 @@ CRITICAL RULES:
 - If the user hasn't provided a specific goal yet, return "Learn the topic" (not inferred from questions)
 - If information is missing, use default values: "General Learning" for topic, "beginner" for level, "Learn the topic" for goal
 
+FORMAT MAPPING (IMPORTANT):
+- If user says "reading", "read", "articles", "article", "blog", "blogs", "text", "written" -> return "blog"
+- If user says "video", "videos", "watching", "watch", "tutorial", "tutorials" -> return "video"
+- If user says "documentation", "docs", "doc", "official docs", "reference" -> return "doc"
+- If user says "mixed", "mix", "any", "both", "all" -> return "any"
+- If no preference stated -> return "any"
+
 Be concise."""
         
         prompt = f"""Extract learning intent from this conversation:

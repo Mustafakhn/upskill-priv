@@ -72,9 +72,14 @@ def format_vapid_private_key(key: str) -> str:
     if not key:
         return key
     
-    # If already in PEM format, return as is
+    # If already in PEM format, return as is (but validate it's not malformed)
     if key.startswith('-----BEGIN'):
-        return key
+        # Validate PEM format is correct
+        if '-----END' in key and key.count('-----BEGIN') == 1 and key.count('-----END') == 1:
+            return key
+        else:
+            # Malformed PEM, try to fix or return original
+            print(f"Warning: Malformed PEM key detected, attempting to fix...")
     
     # VAPID keys are typically provided as base64url (URL-safe base64)
     # Convert base64url to standard base64 first
@@ -89,48 +94,48 @@ def format_vapid_private_key(key: str) -> str:
         # Decode base64 to get raw bytes
         decoded = base64.b64decode(key_standard)
         
-        # Try to load as DER and convert to PEM
+        # Try to generate EC key from raw bytes (VAPID uses P-256 curve)
+        from cryptography.hazmat.primitives.asymmetric import ec
         from cryptography.hazmat.primitives import serialization
         from cryptography.hazmat.backends import default_backend
         
-        try:
-            private_key = serialization.load_der_private_key(
-                decoded,
-                password=None,
-                backend=default_backend()
+        # For VAPID, the key should be 32 bytes for P-256 curve
+        if len(decoded) == 32:
+            private_key = ec.derive_private_key(
+                int.from_bytes(decoded, 'big'),
+                ec.SECP256R1(),
+                default_backend()
             )
             pem = private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption()
             )
-            return pem.decode('utf-8')
-        except Exception as e:
-            # If DER loading fails, the key might be in a different format
-            # Try to generate EC key from raw bytes
+            pem_str = pem.decode('utf-8')
+            # Ensure PEM format is clean (no extra newlines or spaces)
+            pem_str = '\n'.join(line.strip() for line in pem_str.split('\n') if line.strip())
+            return pem_str
+        else:
+            # Try to load as DER format
             try:
-                from cryptography.hazmat.primitives.asymmetric import ec
-                # For VAPID, we need to create an EC private key
-                # The key should be 32 bytes for P-256 curve
-                if len(decoded) == 32:
-                    numbers = ec.derive_private_key(
-                        int.from_bytes(decoded, 'big'),
-                        ec.SECP256R1(),
-                        default_backend()
-                    )
-                    pem = numbers.private_bytes(
-                        encoding=serialization.Encoding.PEM,
-                        format=serialization.PrivateFormat.PKCS8,
-                        encryption_algorithm=serialization.NoEncryption()
-                    )
-                    return pem.decode('utf-8')
-                else:
-                    raise ValueError(f"Invalid key length: {len(decoded)} bytes, expected 32")
-            except Exception as e2:
-                print(f"Warning: Could not format VAPID key as PEM: {e2}")
-                # Return the original key - pywebpush might accept it
-                return key
+                private_key = serialization.load_der_private_key(
+                    decoded,
+                    password=None,
+                    backend=default_backend()
+                )
+                pem = private_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption()
+                )
+                pem_str = pem.decode('utf-8')
+                pem_str = '\n'.join(line.strip() for line in pem_str.split('\n') if line.strip())
+                return pem_str
+            except Exception as e:
+                raise ValueError(f"Invalid key format: {len(decoded)} bytes, expected 32 for raw key or valid DER format. Error: {e}")
     except Exception as e:
-        # If all else fails, return as is (pywebpush might accept raw base64url)
+        # If all else fails, return as is and let pywebpush handle it
         print(f"Warning: Could not format VAPID key, using as-is: {e}")
+        import traceback
+        traceback.print_exc()
         return key

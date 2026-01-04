@@ -5,7 +5,8 @@ import { useAuth } from '../hooks/useAuth'
 import { apiClient } from '../services/api'
 import Button from '../components/common/Button'
 import Card from '../components/common/Card'
-import { Download, User, Lock, CheckCircle, XCircle } from 'lucide-react'
+import { Download, User, Lock, CheckCircle, XCircle, Bell, BellOff } from 'lucide-react'
+import { requestNotificationPermission, registerServiceWorker, subscribeToPushNotifications, unsubscribeFromPushNotifications, getNotificationPermissionStatus, isPushSubscribed } from '../utils/notifications'
 
 export default function SettingsPage() {
   const { user, checkAuth } = useAuth()
@@ -27,11 +28,42 @@ export default function SettingsPage() {
   })
   const [passwordLoading, setPasswordLoading] = useState(false)
 
+  // Notification state
+  const [notificationEnabled, setNotificationEnabled] = useState(false)
+  const [notificationLoading, setNotificationLoading] = useState(false)
+  const [notificationPermission, setNotificationPermission] = useState<'granted' | 'denied' | 'default'>('default')
+
   useEffect(() => {
     if (user) {
       setName(user.name || '')
     }
   }, [user])
+
+  useEffect(() => {
+    // Check notification status on mount
+    const checkNotificationStatus = async () => {
+      const permission = await getNotificationPermissionStatus()
+      setNotificationPermission(permission)
+      
+      if (permission === 'granted' && 'serviceWorker' in navigator) {
+        try {
+          // Register service worker first if needed
+          const registration = await navigator.serviceWorker.ready
+          const subscribed = await isPushSubscribed(registration)
+          setNotificationEnabled(subscribed)
+        } catch (error) {
+          console.error('Error checking notification status:', error)
+          setNotificationEnabled(false)
+        }
+      } else {
+        setNotificationEnabled(false)
+      }
+    }
+    
+    if ('Notification' in window) {
+      checkNotificationStatus()
+    }
+  }, [])
 
   useEffect(() => {
     // Check if PWA is already installed
@@ -187,6 +219,51 @@ export default function SettingsPage() {
     }
   }
 
+  const handleToggleNotifications = async () => {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      setMessage({ type: 'error', text: 'Notifications are not supported in this browser' })
+      return
+    }
+
+    setNotificationLoading(true)
+    setMessage(null)
+
+    try {
+      const registration = await registerServiceWorker()
+      if (!registration) {
+        throw new Error('Failed to register service worker')
+      }
+
+      if (notificationEnabled) {
+        // Disable notifications
+        await unsubscribeFromPushNotifications(registration)
+        setNotificationEnabled(false)
+        setMessage({ type: 'success', text: 'Notifications disabled successfully' })
+      } else {
+        // Enable notifications
+        const permission = await requestNotificationPermission()
+        if (!permission) {
+          setMessage({ type: 'error', text: 'Notification permission was denied' })
+          setNotificationPermission(await getNotificationPermissionStatus())
+          return
+        }
+        
+        await subscribeToPushNotifications(registration)
+        setNotificationEnabled(true)
+        setNotificationPermission('granted')
+        setMessage({ type: 'success', text: 'Notifications enabled successfully' })
+      }
+    } catch (error: any) {
+      console.error('Failed to toggle notifications:', error)
+      setMessage({ 
+        type: 'error', 
+        text: error.message || 'Failed to update notification settings' 
+      })
+    } finally {
+      setNotificationLoading(false)
+    }
+  }
+
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -297,6 +374,69 @@ export default function SettingsPage() {
                 {nameLoading ? 'Updating...' : 'Update Name'}
               </Button>
             </form>
+          </div>
+        </div>
+      </Card>
+
+      {/* Notifications Section */}
+      <Card className="mb-6">
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-teal-100 dark:bg-teal-900 rounded-lg">
+            {notificationEnabled ? (
+              <Bell className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+            ) : (
+              <BellOff className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+            )}
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold mb-2">Push Notifications</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Get notified when your learning journey is ready. You'll receive a notification when your personalized learning path is complete.
+            </p>
+            {notificationPermission === 'denied' && (
+              <div className="mb-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  Notifications are blocked in your browser. Please enable them in your browser settings to receive notifications.
+                </p>
+              </div>
+            )}
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                  {notificationEnabled ? 'Notifications enabled' : 'Notifications disabled'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {notificationPermission === 'granted' 
+                    ? 'You will receive notifications when your journeys are ready'
+                    : notificationPermission === 'denied'
+                    ? 'Notifications are blocked in your browser'
+                    : 'Click the button below to enable notifications'}
+                </p>
+              </div>
+              <Button
+                onClick={handleToggleNotifications}
+                disabled={notificationLoading || notificationPermission === 'denied'}
+                className={`${
+                  notificationEnabled
+                    ? 'bg-gray-600 hover:bg-gray-700'
+                    : 'bg-teal-600 hover:bg-teal-700'
+                }`}
+              >
+                {notificationLoading ? (
+                  'Updating...'
+                ) : notificationEnabled ? (
+                  <>
+                    <BellOff className="w-4 h-4 mr-2" />
+                    Disable
+                  </>
+                ) : (
+                  <>
+                    <Bell className="w-4 h-4 mr-2" />
+                    Enable
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </Card>

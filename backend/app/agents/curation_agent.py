@@ -44,14 +44,12 @@ class CurationAgent:
         # But allow AI to make final selection from a larger pool
         filtered_resources = resource_summaries
         if preferred_format and preferred_format not in ["any", "mixed", "mix"]:
-            # Prioritize preferred format but keep some variety
-            preferred = [r for r in resource_summaries if r.get("type") == preferred_format]
-            other = [r for r in resource_summaries if r.get("type") != preferred_format]
-            # If we have preferred format resources, prioritize them (70/30 split)
-            if preferred:
-                preferred_count = min(len(preferred), int(len(resource_summaries) * 0.7))
-                other_count = len(resource_summaries) - preferred_count
-                filtered_resources = preferred[:preferred_count] + other[:other_count]
+            # Filter to ONLY preferred format (respect user's explicit preference)
+            filtered_resources = [r for r in resource_summaries if r.get("type") == preferred_format]
+            if not filtered_resources:
+                # If no resources match, fall back to all resources and let AI decide
+                print(f"Warning: No resources found with type '{preferred_format}', using all resources")
+                filtered_resources = resource_summaries
             filtered_resources = filtered_resources[:40]  # Allow AI to choose from more options
         
         # Format note for curation
@@ -67,7 +65,7 @@ class CurationAgent:
         if preferred_format in ["any", "mixed", None, ""]:
             format_diversity_note = "\nCRITICAL FORMAT DIVERSITY: User wants a MIX of formats. Ensure you select a BALANCED mix of videos, articles, and documentation. Do NOT select only videos or only articles. Aim for roughly 40% videos, 40% articles/blogs, and 20% documentation when possible."
         elif preferred_format:
-            format_diversity_note = f"\nFormat Preference: User prefers {preferred_format} format. Prioritize this format but include some variety (70% preferred, 30% other formats)."
+            format_diversity_note = f"\nCRITICAL FORMAT PREFERENCE: User explicitly prefers {preferred_format} format. You MUST select ONLY resources of type '{preferred_format}'. Do NOT include videos if user prefers blog/doc, and do NOT include blog/doc if user prefers video. Respect the user's explicit preference 100%."
         
         system_prompt = f"""You are an expert learning path curator. Your goal is to create a STREAMLINED, high-quality learning journey that avoids overwhelming learners with too much material.
 
