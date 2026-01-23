@@ -417,7 +417,12 @@ export default function JourneyDetailPage() {
     return null
   }
 
-  if (!journey || journey.status !== 'ready' || !journey.resources || journey.resources.length === 0) {
+  if (
+    !journey ||
+    !['ready', 'completed'].includes(journey.status) ||
+    !journey.resources ||
+    journey.resources.length === 0
+  ) {
     return (
       <div className="min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -434,6 +439,7 @@ export default function JourneyDetailPage() {
       </div>
     )
   }
+  
 
   const currentResource = journey.resources[currentResourceIndex]
   const isResourceCompleted = (resourceId: string) => {

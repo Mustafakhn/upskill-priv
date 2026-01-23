@@ -270,74 +270,95 @@ export default function MyLearningPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-              {journeys.map((journey) => (
-                <Card
-                  key={journey.id}
-                  hoverable
-                  clickable
-                  onClick={() => router.push(`/journey/${journey.id}`)}
-                  className="p-4 sm:p-6"
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg lg:text-xl font-semibold mb-1 truncate">{journey.topic}</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
-                        {journey.goal}
-                      </p>
-                    </div>
-                    <Badge 
-                      variant={getStatusColor(journey.status) as 'primary' | 'secondary' | 'success' | 'warning' | 'danger'}
-                      className="text-xs sm:text-sm flex-shrink-0"
+                {journeys.map((journey) => {
+                  const isAccessible =
+                    journey.status === 'ready' || journey.status === 'completed'
+
+                  const resourceCount =
+                    journey.resources?.length ??
+                    journey.resource_count ??
+                    0
+
+                  return (
+                    <Card
+                      key={journey.id}
+                      hoverable
+                      clickable
+                      onClick={() => {
+                        if (isAccessible) {
+                          router.push(`/journey/${journey.id}`)
+                        } else {
+                          router.push(`/journey/${journey.id}/preview`)
+                        }
+                      }}
+                      className="p-4 sm:p-6"
                     >
-                      {getStatusLabel(journey.status)}
-                    </Badge>
-                  </div>
+                      <div className="flex items-start justify-between gap-2 mb-2 sm:mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-base sm:text-lg lg:text-xl font-semibold mb-1 truncate">
+                            {journey.topic}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
+                            {journey.goal}
+                          </p>
+                        </div>
 
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                      <span>{journey.resources?.length || journey.resource_count || 0} resources</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Badge variant="secondary" className="text-xs">{journey.level}</Badge>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2">
-                      {journey.status === 'ready' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            router.push(`/journey/${journey.id}/preview`)
-                          }}
-                          className="flex-1 text-xs sm:text-sm"
+                        <Badge
+                          variant={getStatusColor(journey.status)}
+                          className="text-xs sm:text-sm flex-shrink-0"
                         >
-                          Preview
-                        </Button>
-                      )}
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (journey.status === 'ready') {
-                            router.push(`/journey/${journey.id}`)
-                          } else {
-                            router.push(`/journey/${journey.id}/preview`)
-                          }
-                        }}
-                        className="flex-1 text-xs sm:text-sm"
-                      >
-                        {journey.status === 'ready' ? 'Continue' : 'View Status'}
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                          {getStatusLabel(journey.status)}
+                        </Badge>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span>{resourceCount} resources</span>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {journey.level}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2">
+                          {journey.status === 'ready' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                router.push(`/journey/${journey.id}/preview`)
+                              }}
+                              className="flex-1 text-xs sm:text-sm"
+                            >
+                              Preview
+                            </Button>
+                          )}
+
+                          <Button
+                            variant={journey.status === 'completed' ? 'primary' : 'outline'}
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              router.push(`/journey/${journey.id}`)
+                            }}
+                            className="flex-1 text-xs sm:text-sm"
+                          >
+                            {journey.status === 'completed'
+                              ? 'View Completed'
+                              : journey.status === 'ready'
+                              ? 'Continue'
+                              : 'View Status'}
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  )
+                })}
+              </div>
+
           </div>
         )}
       </div>
