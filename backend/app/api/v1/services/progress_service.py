@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional
 from app.api.v1.dao.progress_dao import ProgressDAO
 from app.api.v1.dao.journey_dao import JourneyDAO
+from app.db.base import JourneyStatus
 
 
 class ProgressService:
@@ -54,6 +55,22 @@ class ProgressService:
         # Refresh the progress object to ensure we have the latest state
         db.refresh(progress)
         
+        # Check if all resources are now completed
+        journey_resources = JourneyDAO.get_resources(db, journey_id)
+        total_resources = len(journey_resources)
+        
+        if total_resources > 0:
+            progress_summary = self.progress_dao.get_progress_summary(
+                db, journey_id, user_id, total_resources
+            )
+            completed_count = progress_summary.get("completed_count", 0)
+            
+            # If all resources are completed and journey is READY, mark it as COMPLETED
+            if completed_count == total_resources and journey.status == JourneyStatus.READY:
+                self.journey_dao.update_status(db, journey_id, JourneyStatus.COMPLETED)
+                db.commit()
+                print(f"Journey {journey_id} marked as COMPLETED (all {total_resources} resources completed)")
+        
         return {
             "resource_id": resource_id,
             "completed": progress.completed,
@@ -99,6 +116,12 @@ class ProgressService:
             db, journey_id, user_id, resource_id
         )
         db.commit()
+        
+        # If journey was COMPLETED, revert it back to READY since not all resources are complete anymore
+        if journey.status == JourneyStatus.COMPLETED:
+            self.journey_dao.update_status(db, journey_id, JourneyStatus.READY)
+            db.commit()
+            print(f"Journey {journey_id} reverted from COMPLETED to READY (resource {resource_id} marked incomplete)")
         
         return {
             "resource_id": resource_id,

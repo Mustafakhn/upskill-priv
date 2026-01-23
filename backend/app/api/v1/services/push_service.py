@@ -63,7 +63,16 @@ class PushService:
             
             # Format VAPID private key if needed
             from app.utils.vapid import format_vapid_private_key
-            vapid_key = format_vapid_private_key(settings.VAPID_PRIVATE_KEY)
+            try:
+                vapid_key = format_vapid_private_key(settings.VAPID_PRIVATE_KEY)
+                # Verify the key format
+                if not vapid_key or (not vapid_key.startswith('-----BEGIN') and len(vapid_key) < 32):
+                    print(f"Warning: VAPID key format may be incorrect. Key length: {len(vapid_key) if vapid_key else 0}")
+            except Exception as e:
+                print(f"Error formatting VAPID key: {e}")
+                import traceback
+                traceback.print_exc()
+                return False
             
             # Send push notification
             webpush(
@@ -74,7 +83,7 @@ class PushService:
                     "sub": settings.VAPID_CONTACT_EMAIL or "mailto:team@inurek.com"
                 }
             )
-            print(f"Push notification sent to user {user_id}")
+            print(f"✓ Push notification sent successfully to user {user_id}")
             return True
         except WebPushException as e:
             print(f"WebPush error for user {user_id}: {e}")

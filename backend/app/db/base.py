@@ -11,6 +11,7 @@ class JourneyStatus(enum.Enum):
     SCRAPING = "scraping"
     CURATING = "curating"
     READY = "ready"
+    COMPLETED = "completed"
     FAILED = "failed"
 
 
