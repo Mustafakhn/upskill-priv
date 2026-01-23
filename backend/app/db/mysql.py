@@ -30,13 +30,13 @@ def init_db():
 
 
 def _migrate_journey_status_enum():
-    """Add 'completed' status to journeys.status enum if it doesn't exist"""
+    """Migrate journeys.status from ENUM to VARCHAR to support SQLAlchemy enum values"""
     try:
         with engine.connect() as conn:
-            # Check current enum values
+            # Check current column type
             result = conn.execute(
                 text("""
-                    SELECT COLUMN_TYPE 
+                    SELECT COLUMN_TYPE, DATA_TYPE
                     FROM INFORMATION_SCHEMA.COLUMNS 
                     WHERE TABLE_SCHEMA = DATABASE() 
                     AND TABLE_NAME = 'journeys' 
@@ -45,26 +45,41 @@ def _migrate_journey_status_enum():
             )
             row = result.fetchone()
             if row:
-                enum_type = row[0]
-                # Check if 'completed' is already in the enum
-                if 'completed' not in enum_type.lower():
-                    print("Migrating journeys.status enum to include 'completed'...")
-                    # Alter the enum to add 'completed'
-                    # MySQL requires us to recreate the enum with all values
+                column_type = row[0]
+                data_type = row[1]
+                # If it's an ENUM, convert to VARCHAR
+                if data_type == 'enum':
+                    print("Migrating journeys.status from ENUM to VARCHAR...")
+                    # First, ensure 'completed' is in the enum if it's still ENUM
+                    if 'completed' not in column_type.lower():
+                        # Add 'completed' to enum first
+                        conn.execute(
+                            text("""
+                                ALTER TABLE journeys 
+                                MODIFY COLUMN status ENUM('pending', 'scraping', 'curating', 'ready', 'completed', 'failed') 
+                                NOT NULL DEFAULT 'pending'
+                            """)
+                        )
+                        conn.commit()
+                    
+                    # Convert ENUM to VARCHAR
                     conn.execute(
                         text("""
                             ALTER TABLE journeys 
-                            MODIFY COLUMN status ENUM('pending', 'scraping', 'curating', 'ready', 'completed', 'failed') 
+                            MODIFY COLUMN status VARCHAR(20) 
                             NOT NULL DEFAULT 'pending'
                         """)
                     )
                     conn.commit()
-                    print("✓ Successfully added 'completed' status to journeys table")
+                    print("✓ Successfully migrated journeys.status from ENUM to VARCHAR")
+                elif data_type == 'varchar':
+                    # Already VARCHAR, just ensure we have the right values
+                    print("✓ Journey status is already VARCHAR")
                 else:
-                    print("✓ Journey status enum already includes 'completed'")
+                    print(f"Warning: Unexpected column type for status: {data_type}")
     except Exception as e:
         # Log but don't fail - migration might not be critical
-        print(f"Warning: Could not migrate journey status enum: {e}")
+        print(f"Warning: Could not migrate journey status column: {e}")
         import traceback
         traceback.print_exc()
 

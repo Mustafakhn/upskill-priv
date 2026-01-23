@@ -38,7 +38,7 @@ class Journey(Base):
     level = Column(String(50), nullable=False)
     goal = Column(Text, nullable=False)
     preferred_format = Column(String(20), nullable=True)  # video, blog, doc, any
-    status = Column(Enum(JourneyStatus), default=JourneyStatus.PENDING, nullable=False)
+    status = Column(Enum(JourneyStatus, native_enum=False, length=20), default=JourneyStatus.PENDING, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
