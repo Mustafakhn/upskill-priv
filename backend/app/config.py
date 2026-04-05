@@ -60,6 +60,7 @@ if settings.VAPID_PRIVATE_KEY and not settings.VAPID_PUBLIC_KEY:
         from app.utils.vapid import get_public_key_from_private, format_vapid_private_key
         # Try to format the key first (converts base64url to PEM if needed)
         formatted_key = format_vapid_private_key(settings.VAPID_PRIVATE_KEY)
+        settings.VAPID_PRIVATE_KEY = formatted_key
         # Generate public key (handles both PEM and base64url formats)
         public_key = get_public_key_from_private(formatted_key)
         if not public_key:

@@ -1,92 +1,105 @@
-from typing import List
+from typing import List, Optional
 from app.utils.ai_client import ai_client
 
 
 class QueryBuilder:
-    """Build search queries from user intent"""
-    
+    """Build targeted search queries from user intent."""
+
+    @staticmethod
+    def _format_hint(preferred_format: Optional[str]) -> str:
+        if preferred_format == "video":
+            return "Prefer video-friendly phrasing such as walkthrough, lesson, or explained."
+        if preferred_format == "blog":
+            return "Prefer article-friendly phrasing such as guide, examples, best practices, or case study."
+        if preferred_format == "doc":
+            return "Prefer official docs, standards, reference, handbook, or guide phrasing."
+        return "Use a balanced mix of query styles without overfocusing on one format."
+
+    @staticmethod
+    def _fallback_queries(topic: str, level: str, goal: str, preferred_format: Optional[str] = None) -> List[str]:
+        base_goal = goal if goal and goal.lower() != f"learn {topic}".lower() else f"{topic} fundamentals"
+        queries = [
+            f"{topic} {level} fundamentals",
+            f"{topic} {base_goal}",
+            f"{topic} practical examples for {level}",
+            f"{topic} roadmap for {goal or f'learning {topic}'}",
+        ]
+
+        if preferred_format == "doc":
+            queries.append(f"{topic} official documentation")
+        elif preferred_format == "video":
+            queries.append(f"{topic} beginner walkthrough")
+        elif preferred_format == "blog":
+            queries.append(f"{topic} guide with examples")
+        else:
+            queries.append(f"{topic} best resources for {level}")
+
+        deduped = []
+        seen = set()
+        for query in queries:
+            normalized = query.lower().strip()
+            if normalized not in seen:
+                deduped.append(query)
+                seen.add(normalized)
+        return deduped[:5]
+
     @staticmethod
     def build_queries(topic: str, level: str, goal: str, preferred_format: str = None) -> List[str]:
         """
-        Build multiple search queries for scraping
-        
-        Args:
-            topic: Learning topic
-            level: User level (beginner/intermediate/advanced)
-            goal: Learning goal
-            preferred_format: Preferred format (video/blog/doc)
-            
-        Returns:
-            List of search query strings
+        Build multiple focused search queries for scraping.
         """
-        # Don't restrict queries by material type - let the search engine find everything
-        # Generate diverse, general queries that cover different learning angles
-        system_prompt = """You are a search query expert. Generate at least 5 diverse, general search queries 
-(aim for 5-8 queries) that would help someone learn the given topic. 
+        format_hint = QueryBuilder._format_hint(preferred_format)
 
-IMPORTANT: Do NOT include material type keywords like "video", "blog", "tutorial", "documentation" in queries.
-Just use general, natural search queries about the topic itself.
+        system_prompt = """You are a search query expert building learning-resource queries.
 
-Consider different learning angles:
-- Fundamentals and basics
-- Practical examples and projects
-- Official resources and references
-- Best practices and patterns
-- Common use cases
-- Advanced concepts
+Generate exactly 5 search queries as a JSON array of strings.
 
-Return ONLY a JSON array of query strings, nothing else.
-Example: ["python basics", "python examples", "python best practices", "python web development", ...]"""
-        
+Requirements:
+- Every query must stay tightly tied to the topic and the user's goal.
+- Avoid generic filler like "common use cases", "advanced concepts", or "best practices" unless anchored to the topic and goal.
+- Cover these angles with concrete wording:
+  1. foundations
+  2. practical examples or projects
+  3. goal-specific learning
+  4. high-quality reference or official source
+  5. one complementary angle based on level
+- Keep queries natural and specific.
+- Do not produce duplicate or near-duplicate queries.
+- Do not include quotation marks or numbering.
+Return only a JSON array."""
+
         prompt = f"""Topic: {topic}
 Level: {level}
 Goal: {goal}
+Preferred format: {preferred_format or 'mixed'}
+Format guidance: {format_hint}
 
-Generate general search queries (do NOT include material type keywords like "video", "blog", "tutorial"):
+Generate 5 focused search queries that will find the most relevant learning resources for this user."""
 
-Generate search queries:"""
-        
         try:
             result = ai_client.generate_json(
                 prompt=prompt,
                 system_prompt=system_prompt,
-                temperature=0.7
+                temperature=0.4
             )
-            
-            if isinstance(result, list):
-                # Ensure at least 5 queries, but don't limit maximum
-                if len(result) < 5:
-                    # If we got fewer than 5, add some fallback queries
-                    fallback_queries = [
-                        f"{topic} {level} tutorial",
-                        f"{topic} {level} guide",
-                        f"{topic} documentation",
-                        f"learn {topic} {level}",
-                        f"{topic} {goal} {level}"
-                    ]
-                    # Add fallbacks that aren't already in result
-                    for fb_query in fallback_queries:
-                        if fb_query.lower() not in [q.lower() for q in result]:
-                            result.append(fb_query)
-                            if len(result) >= 5:
-                                break
-                return result  # Return all queries (at least 5)
-            
-            # Fallback if response is not a list
-            return [
-                f"{topic} {level} tutorial",
-                f"{topic} {level} guide",
-                f"{topic} documentation",
-                f"learn {topic} {level}",
-                f"{topic} {goal}"
-            ]
-        except Exception:
-            # Fallback queries if AI fails
-            return [
-                f"{topic} {level} tutorial",
-                f"{topic} {level} guide",
-                f"{topic} documentation",
-                f"learn {topic} {level}",
-                f"{topic} {goal}"
-            ]
 
+            if isinstance(result, list):
+                cleaned = []
+                seen = set()
+                for item in result:
+                    if not isinstance(item, str):
+                        continue
+                    query = item.strip().strip('"').strip("'")
+                    if len(query) < 8:
+                        continue
+                    normalized = query.lower()
+                    if normalized in seen:
+                        continue
+                    cleaned.append(query)
+                    seen.add(normalized)
+                if len(cleaned) >= 4:
+                    return cleaned[:5]
+        except Exception:
+            pass
+
+        return QueryBuilder._fallback_queries(topic, level, goal, preferred_format)

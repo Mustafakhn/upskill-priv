@@ -71,16 +71,9 @@ class PushService:
             }
             
             # Format VAPID private key if needed
-            from app.utils.vapid import format_vapid_private_key
-            try:
-                vapid_key = format_vapid_private_key(settings.VAPID_PRIVATE_KEY)
-                # Verify the key format
-                if not vapid_key or (not vapid_key.startswith('-----BEGIN') and len(vapid_key) < 32):
-                    print(f"Warning: VAPID key format may be incorrect. Key length: {len(vapid_key) if vapid_key else 0}")
-            except Exception as e:
-                print(f"Error formatting VAPID key: {e}")
-                import traceback
-                traceback.print_exc()
+            vapid_key = settings.VAPID_PRIVATE_KEY
+            if not vapid_key:
+                print("VAPID private key is unavailable after normalization")
                 return False
             
             # Send push notification

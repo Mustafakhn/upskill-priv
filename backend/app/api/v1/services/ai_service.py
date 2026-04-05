@@ -17,11 +17,16 @@ class AIService:
             "novice": "beginner",
             "starter": "beginner",
             "basic": "beginner",
+            "complete beginner": "beginner",
+            "beginner level": "beginner",
             "mid": "intermediate",
             "medium": "intermediate",
             "experienced": "intermediate",
+            "some experience": "intermediate",
+            "intermediate level": "intermediate",
             "expert": "advanced",
             "pro": "advanced",
+            "advanced level": "advanced",
         }
         level = aliases.get(level, level)
         return level if level in self.VALID_LEVELS else None
@@ -33,17 +38,21 @@ class AIService:
         aliases = {
             "videos": "video",
             "video tutorials": "video",
+            "video lessons": "video",
             "tutorials": "video",
             "articles": "blog",
             "article": "blog",
             "blogs": "blog",
             "blog posts": "blog",
+            "reading articles": "blog",
             "docs": "doc",
             "documentation": "doc",
             "guides": "doc",
+            "documentation and guides": "doc",
             "reading": "blog",
             "mix": "mixed",
             "both": "mixed",
+            "mixed learning format": "mixed",
         }
         preferred_format = aliases.get(preferred_format, preferred_format)
         return preferred_format if preferred_format in self.VALID_FORMATS else None
@@ -191,6 +200,7 @@ Return ONLY valid JSON with this exact structure:
 
 Rules:
 - The response should be 1-3 short sentences, conversational and helpful.
+- Sound like a chat, not a form or checklist.
 - Actively gather the missing setup info needed for a learning plan.
 - Required setup info: topic, learner level, preferred learning format.
 - Goal is helpful but optional; if the user gives one, keep it.
