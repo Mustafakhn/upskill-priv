@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageSquare, Send, Loader2 } from 'lucide-react'
-import Card from '../components/common/Card'
+import { MessageSquare, Send, Loader2, Sparkles } from 'lucide-react'
 import Button from '../components/common/Button'
 import Loading from '../components/common/Loading'
 import { apiClient, ChatMessage } from '../services/api'
@@ -12,11 +11,12 @@ import ConversationHistory from '../components/chat/ConversationHistory'
 
 export default function ChatPage() {
   const router = useRouter()
-  const { isAuthenticated, loading: authLoading, user } = useAuth()
+  const { isAuthenticated, loading: authLoading } = useAuth()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -28,20 +28,25 @@ export default function ChatPage() {
     }
   }, [isAuthenticated, authLoading, router])
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading, suggestions])
+
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || loading) return
+  const handleSendMessage = async (messageText?: string) => {
+    const nextInput = messageText ?? input
+    if (!nextInput.trim() || loading) return
 
     const userMessage: ChatMessage = {
       role: 'user',
-      content: input.trim(),
+      content: nextInput.trim(),
       timestamp: new Date().toISOString()
     }
 
     const newMessages = [...messages, userMessage]
     setMessages(newMessages)
-    const messageText = input.trim()
+    const textToSend = nextInput.trim()
     setInput('')
     setLoading(true)
 
@@ -49,10 +54,10 @@ export default function ChatPage() {
       let response
       if (messages.length === 0 && !conversationId) {
         // Start new conversation
-        response = await apiClient.startChat(messageText, [])
+        response = await apiClient.startChat(textToSend, [])
       } else {
         // Continue existing conversation
-        response = await apiClient.respondToChat(messageText, messages, conversationId || undefined)
+        response = await apiClient.respondToChat(textToSend, messages, conversationId || undefined)
       }
 
       const aiMessage: ChatMessage = {
@@ -62,6 +67,7 @@ export default function ChatPage() {
       }
 
       setMessages([...newMessages, aiMessage])
+      setSuggestions(response.questions || [])
 
       if (response.conversation_id) {
         setConversationId(response.conversation_id)
@@ -71,6 +77,7 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      setSuggestions([])
       const errorMessage: ChatMessage = {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',
@@ -86,6 +93,7 @@ export default function ChatPage() {
     setSelectedConversationId(convId)
     setConversationId(convId)
     setMessages([])
+    setSuggestions([])
     setLoading(true)
 
     try {
@@ -108,6 +116,7 @@ export default function ChatPage() {
     setConversationId(null)
     setSelectedConversationId(null)
     setMessages([])
+    setSuggestions([])
   }
 
   if (authLoading) {
@@ -250,6 +259,31 @@ export default function ChatPage() {
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-teal-600 dark:text-teal-400" />
                       <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {!loading && suggestions.length > 0 && (
+                <div className="flex justify-start">
+                  <div className="max-w-4xl rounded-2xl border border-teal-100 bg-teal-50/80 px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-teal-900/60 dark:bg-slate-800 dark:text-slate-200">
+                    <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-teal-700 dark:text-teal-300">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Suggested Replies
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestions.map((suggestion, index) => (
+                        <button
+                          key={`${suggestion}-${index}`}
+                          type="button"
+                          onClick={() => {
+                            setInput('')
+                            void handleSendMessage(suggestion)
+                          }}
+                          className="rounded-full border border-white/80 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-teal-300"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>

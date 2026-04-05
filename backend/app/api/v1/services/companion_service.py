@@ -80,12 +80,88 @@ Answer the student's question in a helpful, educational way. Be concise but thor
                 temperature=0.7,
                 max_tokens=1000
             )
+            suggestions = self._generate_follow_up_suggestions(
+                topic=journey.topic,
+                level=journey.level,
+                question=question,
+                answer=answer.strip(),
+                context_resource=context_resource,
+                resources=resources
+            )
             return {
                 "answer": answer.strip(),
-                "context_used": context_resource_id is not None
+                "context_used": context_resource_id is not None,
+                "suggestions": suggestions
             }
         except Exception as e:
             raise Exception(f"Failed to generate answer: {str(e)}")
+
+    def _generate_follow_up_suggestions(
+        self,
+        topic: str,
+        level: str,
+        question: str,
+        answer: str,
+        context_resource: Optional[Dict[str, Any]] = None,
+        resources: Optional[List[Dict[str, Any]]] = None
+    ) -> List[str]:
+        """Generate short follow-up prompts relevant to the current explanation."""
+        resource_titles = [r.get("title", "") for r in (resources or [])[:4] if r.get("title")]
+        context_title = context_resource.get("title", "") if context_resource else ""
+
+        system_prompt = """You generate short follow-up prompts for a learning chat UI.
+
+Return ONLY valid JSON:
+{
+  "suggestions": ["string", "string", "string"]
+}
+
+Rules:
+- Produce 3 or 4 suggestions.
+- Each suggestion should be a short prompt the learner could click next.
+- Make them directly relevant to the current question or answer.
+- Mix types when possible: clarification, example, practice, next step.
+- Use plain language for the learner's level.
+- Do not repeat the original question verbatim.
+- Keep each suggestion under 12 words.
+"""
+
+        prompt = f"""Topic: {topic}
+Level: {level}
+Current question: {question}
+Assistant answer: {answer}
+Focused resource: {context_title or 'None'}
+Available resource titles: {resource_titles}
+
+Generate 3-4 relevant follow-up suggestion chips for the learner."""
+
+        try:
+            result = ai_client.generate_json(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                temperature=0.4
+            )
+            suggestions = result.get("suggestions", [])
+            if not isinstance(suggestions, list):
+                return []
+
+            cleaned = []
+            for suggestion in suggestions:
+                if not isinstance(suggestion, str):
+                    continue
+                value = suggestion.strip().strip('"').strip("'")
+                if 3 <= len(value) <= 80:
+                    cleaned.append(value)
+            return cleaned[:4]
+        except Exception:
+            fallback = [
+                "Show me a simple example",
+                "Explain this in easier terms",
+                "What should I learn next",
+            ]
+            if context_title:
+                fallback.insert(1, f"How does this relate to {context_title[:24]}?")
+            return fallback[:4]
     
     def summarize_resource(
         self,

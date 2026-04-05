@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, X, FileText, Lightbulb, BookOpen } from 'lucide-react'
+import { Send, FileText, Lightbulb, BookOpen } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { apiClient } from '@/app/services/api'
 import Button from '../common/Button'
@@ -17,6 +17,7 @@ interface Message {
   content: string
   type?: 'answer' | 'summary' | 'quiz' | 'examples'
   quizAttemptId?: number
+  suggestions?: string[]
 }
 
 export default function CompanionChat({ journeyId, resourceId, onClose }: CompanionChatProps) {
@@ -24,6 +25,7 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showQuickActions, setShowQuickActions] = useState(true)
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -34,36 +36,46 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
     scrollToBottom()
   }, [messages, isLoading])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+  const sendQuestion = async (questionText: string) => {
+    const userMessage = questionText.trim()
+    if (!userMessage || isLoading) return
 
-    const userMessage = input.trim()
     setInput('')
     setShowQuickActions(false)
+    setSuggestions([])
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
     try {
       const response = await apiClient.askQuestion(journeyId, userMessage, resourceId)
+      const nextSuggestions = response.suggestions || []
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: response.answer,
-        type: 'answer'
+        type: 'answer',
+        suggestions: nextSuggestions
       }])
+      setSuggestions(nextSuggestions)
     } catch (error) {
       console.error('Error asking question:', error)
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.'
       }])
+      setSuggestions([])
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await sendQuestion(input)
+  }
+
   const handleQuickAction = async (action: string, params?: { concept?: string }) => {
     setShowQuickActions(false)
+    setSuggestions([])
     setIsLoading(true)
 
     try {
@@ -78,6 +90,7 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
               role: 'assistant',
               content: 'Please select a resource first to summarize.'
             }])
+            setSuggestions([])
             setIsLoading(false)
             return
           }
@@ -100,6 +113,11 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
             type: 'quiz',
             quizAttemptId: quizData.attempt_id
           }])
+          setSuggestions([
+            'Give me a quick recap first',
+            'Make another quiz later',
+            'What should I review before starting'
+          ])
           setIsLoading(false)
           return
 
@@ -109,6 +127,7 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
               role: 'assistant',
               content: 'Please specify a concept to generate examples for. You can ask: "Give me examples of [concept]"'
             }])
+            setSuggestions(['Explain the main idea first', 'Summarize this resource', 'Create a quiz for me'])
             setIsLoading(false)
             return
           }
@@ -129,15 +148,27 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
         content,
         type
       }])
+      setSuggestions(
+        action === 'summarize'
+          ? ['Ask a question about this', 'Give me examples from this topic', 'Create a quiz on this']
+          : action === 'examples'
+            ? ['Explain why these examples work', 'Give me harder examples', 'Quiz me on this concept']
+            : []
+      )
     } catch (error) {
       console.error('Error with quick action:', error)
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.'
       }])
+      setSuggestions([])
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    void sendQuestion(suggestion)
   }
 
   return (
@@ -267,6 +298,26 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
 
       {/* Input */}
       <div className="flex-shrink-0 p-4 border-t border-slate-200 dark:border-slate-700">
+        {suggestions.length > 0 && (
+          <div className="mb-3">
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+              Suggested next prompts
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={`${suggestion}-${index}`}
+                  type="button"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  disabled={isLoading}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-teal-500 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-teal-300"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <textarea
             value={input}
@@ -300,4 +351,3 @@ export default function CompanionChat({ journeyId, resourceId, onClose }: Compan
     </div>
   )
 }
-

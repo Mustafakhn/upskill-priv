@@ -248,7 +248,10 @@ export default function SettingsPage() {
           return
         }
         
-        await subscribeToPushNotifications(registration)
+        const subscription = await subscribeToPushNotifications(registration)
+        if (!subscription) {
+          throw new Error('Could not create a browser push subscription')
+        }
         setNotificationEnabled(true)
         setNotificationPermission('granted')
         setMessage({ type: 'success', text: 'Notifications enabled successfully' })
@@ -505,4 +508,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

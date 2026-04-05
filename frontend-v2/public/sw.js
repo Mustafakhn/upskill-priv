@@ -19,8 +19,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Upskill'
   const options = {
     body: data.body || 'Your learning journey is ready!',
-    icon: '/upskill-logo.svg',
-    badge: '/upskill-logo.svg',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     tag: data.tag || 'journey-ready',
     data: data.data || {},
     requireInteraction: false,
@@ -36,7 +36,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close()
 
   const data = event.notification.data
-  const urlToOpen = data.url || '/my-learning'
+  const urlToOpen = new URL(data.url || '/my-learning', self.location.origin).href
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
@@ -54,4 +54,3 @@ self.addEventListener('notificationclick', (event) => {
     })
   )
 })
-

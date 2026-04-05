@@ -10,7 +10,7 @@ import Loading from '../components/common/Loading'
 import ConversationHistory from '../components/chat/ConversationHistory'
 import { apiClient, ChatMessage } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
-import { requestNotificationPermission, registerServiceWorker, subscribeToPushNotifications } from '../utils/notifications'
+import { requestNotificationPermission, registerServiceWorker, showLocalNotification, subscribeToPushNotifications } from '../utils/notifications'
 
 function StartPageContent() {
   const router = useRouter()
@@ -127,9 +127,10 @@ function StartPageContent() {
         try {
           const registration = await registerServiceWorker()
           if (registration) {
-            await requestNotificationPermission()
-            // Subscribe to push notifications
-            await subscribeToPushNotifications(registration)
+            const permissionGranted = await requestNotificationPermission()
+            if (permissionGranted) {
+              await subscribeToPushNotifications(registration)
+            }
           }
           // Also start polling as fallback
           startJourneyStatusPolling(response.journey_id)
@@ -163,6 +164,8 @@ function StartPageContent() {
     setSelectedConversationId(convId)
     setConversationId(convId)
     setMessages([])
+    setSuggestions([])
+    setShowFormatSelector(false)
     setIsReady(false)
     setJourneyId(null)
     setLoading(true)
@@ -204,10 +207,8 @@ function StartPageContent() {
         if (journey && journey.status === 'ready') {
           // Journey is ready - show notification
           if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Journey Ready! 🎉', {
+            showLocalNotification('Journey Ready!', {
               body: `Your learning journey for "${journey.topic}" is ready to start!`,
-              icon: '/upskill-logo.svg',
-              badge: '/upskill-logo.svg',
               tag: `journey-${jid}`,
               data: { journeyId: jid, url: `/journey/${jid}` }
             })
@@ -240,6 +241,7 @@ function StartPageContent() {
     setIsReady(false)
     setJourneyId(null)
     setSuggestions([])
+    setShowFormatSelector(false)
     // Clear any polling intervals
     if (journeyStatusIntervalRef.current) {
       clearInterval(journeyStatusIntervalRef.current)
@@ -433,7 +435,7 @@ function StartPageContent() {
               <Card className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border-teal-200 dark:border-teal-800">
                 <div className="text-center py-3">
                   <h3 className="text-lg font-bold mb-1 text-teal-900 dark:text-teal-100">
-                    🎉 Your Learning Journey is Ready!
+                    Your Learning Journey is Ready!
                   </h3>
                   <p className="text-sm text-teal-700 dark:text-teal-300 mb-3">
                     I&apos;ve created a personalized roadmap with curated resources just for you
@@ -532,4 +534,3 @@ export default function StartPage() {
     </Suspense>
   )
 }
-

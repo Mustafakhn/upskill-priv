@@ -76,13 +76,8 @@ export async function subscribeToPushNotifications(
     }
 
     // Send subscription to backend
-    try {
-      await apiClient.subscribeToPush(subscription)
-      console.log('Push subscription sent to backend')
-    } catch (error) {
-      console.error('Failed to send subscription to backend:', error)
-      // Continue anyway - subscription is created locally
-    }
+    await apiClient.subscribeToPush(subscription)
+    console.log('Push subscription sent to backend')
 
     return subscription
   } catch (error) {
@@ -128,8 +123,8 @@ export function showLocalNotification(title: string, options?: NotificationOptio
   }
 
   new Notification(title, {
-    icon: '/upskill-logo.svg',
-    badge: '/upskill-logo.svg',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     ...options
   })
 }
@@ -175,4 +170,3 @@ export async function isPushSubscribed(registration: ServiceWorkerRegistration):
     return false
   }
 }
-

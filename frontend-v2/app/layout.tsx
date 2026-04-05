@@ -3,7 +3,6 @@ import "./globals.css";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
 import LayoutContent from "./components/layout/LayoutContent";
 import ServiceWorkerSetup from "./components/common/ServiceWorkerRegistration";
 
@@ -13,9 +12,9 @@ export const metadata: Metadata = {
   keywords: "learning, education, AI, tutorials, courses, skills",
   manifest: "/manifest.json",
   icons: {
-    icon: "/upskill-logo.svg",
-    apple: "/upskill-logo.svg",
-    shortcut: "/upskill-logo.svg",
+    icon: "/favicon-32.png",
+    apple: "/icon-192.png",
+    shortcut: "/favicon-32.png",
   },
   appleWebApp: {
     capable: true,
@@ -28,7 +27,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#3b82f6",
+  themeColor: "#0d9488",
 };
 
 export default function RootLayout({

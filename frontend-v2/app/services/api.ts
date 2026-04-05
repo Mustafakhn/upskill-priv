@@ -78,6 +78,20 @@ export interface ChatMessage {
   timestamp?: string
 }
 
+export interface ChatResponse {
+  response: string
+  questions?: string[]
+  ready?: boolean
+  journey_id?: number | null
+  conversation_id?: string
+}
+
+export interface CompanionQuestionResponse {
+  answer: string
+  context_used: boolean
+  suggestions?: string[]
+}
+
 export interface Journey {
   id: number
   user_id: number
@@ -207,7 +221,7 @@ export const apiClient = {
   },
 
   // Chat
-  startChat: async (message: string, conversationHistory?: ChatMessage[]) => {
+  startChat: async (message: string, conversationHistory?: ChatMessage[]): Promise<ChatResponse> => {
     const response = await api.post('/api/v1/chat/start', {
       message,
       conversation_history: conversationHistory || []
@@ -215,7 +229,7 @@ export const apiClient = {
     return response.data
   },
 
-  respondToChat: async (message: string, conversationHistory: ChatMessage[], conversationId?: string) => {
+  respondToChat: async (message: string, conversationHistory: ChatMessage[], conversationId?: string): Promise<ChatResponse> => {
     const response = await api.post('/api/v1/chat/respond', {
       message,
       conversation_history: conversationHistory,
@@ -298,7 +312,7 @@ export const apiClient = {
   },
 
   // AI Companion
-  askQuestion: async (journeyId: number, question: string, contextResourceId?: string) => {
+  askQuestion: async (journeyId: number, question: string, contextResourceId?: string): Promise<CompanionQuestionResponse> => {
     const response = await api.post(`/api/v1/companion/${journeyId}/question`, {
       question,
       context_resource_id: contextResourceId
@@ -388,4 +402,3 @@ export interface ResourceContent {
 }
 
 export default api
-
