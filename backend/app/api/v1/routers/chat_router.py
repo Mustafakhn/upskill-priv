@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-from datetime import datetime
 from app.api.v1.services.ai_service import AIService
-from app.api.v1.services.agent_service import AgentService
 from app.api.v1.services.journey_service import JourneyService
 from app.api.v1.services.user_service import UserService
 from app.api.v1.services.conversation_service import ConversationService
@@ -16,7 +14,6 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 security = HTTPBearer()
 
 ai_service = AIService()
-agent_service = AgentService()
 journey_service = JourneyService()
 user_service = UserService()
 conversation_service = ConversationService()
@@ -35,6 +32,7 @@ class ChatStartRequest(BaseModel):
 class ChatStartResponse(BaseModel):
     response: str
     questions: Optional[List[str]] = None
+    missing_info: Optional[List[str]] = None
     ready: bool = False
     journey_id: Optional[int] = None
     conversation_id: str  # MongoDB ObjectId as string
@@ -49,6 +47,7 @@ class ChatRespondRequest(BaseModel):
 class ChatRespondResponse(BaseModel):
     response: str
     questions: Optional[List[str]] = None
+    missing_info: Optional[List[str]] = None
     ready: bool = False
     journey_id: Optional[int] = None
     conversation_id: str  # MongoDB ObjectId as string
@@ -101,19 +100,19 @@ def start_chat(
     # Save user message to MongoDB
     conversation_service.add_message(conversation_id, "user", request.message)
     
-    # Generate response
-    response_text = ai_service.generate_chat_response(history[:-1], request.message)
+    # Generate response and suggestions in one AI call
+    chat = ChatDAO.get_chat(conversation_id)
+    asked_questions = chat.get("asked_questions", []) if chat else []
+    turn = ai_service.generate_chat_turn(history[:-1], request.message, asked_questions)
+    response_text = turn["response"]
     
     # Save assistant response to MongoDB
     conversation_service.add_message(conversation_id, "assistant", response_text)
     
     # Use unified analysis (single AI call for everything)
-    user_messages = [msg for msg in history if msg.get("role") == "user"]
-    chat = ChatDAO.get_chat(conversation_id)
-    asked_questions = chat.get("asked_questions", []) if chat else []
-    analysis = ai_service.analyze_conversation(history, asked_questions, len(user_messages))
-    ready = analysis["is_ready"]
-    intent = analysis["intent"]
+    ready = turn["is_ready"]
+    intent = turn["intent"]
+    missing_info = turn.get("missing_info", [])
     journey_id = None
     
     print(f"[DEBUG] start_chat: is_ready={ready}")
@@ -126,6 +125,7 @@ def start_chat(
             return ChatStartResponse(
                 response="You've used all your free journeys. Please upgrade to continue.",
                 questions=None,
+                missing_info=missing_info,
                 ready=False,
                 journey_id=None,
                 conversation_id=conversation_id
@@ -151,7 +151,7 @@ def start_chat(
     
     # Get next suggestions if not ready (already computed in analysis above)
     questions = None
-    next_suggestions = analysis.get("next_suggestions", [])
+    next_suggestions = turn.get("next_suggestions", [])
     if not ready and next_suggestions and len(next_suggestions) > 0:
         # Save the first suggestion to conversation state (for tracking)
         asked_questions.append(next_suggestions[0])
@@ -161,6 +161,7 @@ def start_chat(
     return ChatStartResponse(
         response=response_text,
         questions=questions,
+        missing_info=missing_info,
         ready=ready,
         journey_id=journey_id,
         conversation_id=conversation_id
@@ -194,17 +195,18 @@ def respond_to_chat(
     # Save user message to MongoDB
     conversation_service.add_message(conversation_id, "user", request.message)
     
-    # Generate response
-    response_text = ai_service.generate_chat_response(history[:-1], request.message)
+    chat = ChatDAO.get_chat(conversation_id)
+    asked_questions = chat.get("asked_questions", []) if chat else []
+    turn = ai_service.generate_chat_turn(history[:-1], request.message, asked_questions)
+    response_text = turn["response"]
     
     # Save assistant response to MongoDB
     conversation_service.add_message(conversation_id, "assistant", response_text)
     
     # Use unified analysis method (single AI call for everything)
-    user_messages = [msg for msg in history if msg.get("role") == "user"]
-    analysis = ai_service.analyze_conversation(history, asked_questions=[], user_message_count=len(user_messages))
-    ready = analysis["is_ready"]
-    intent = analysis["intent"]
+    ready = turn["is_ready"]
+    intent = turn["intent"]
+    missing_info = turn.get("missing_info", [])
     journey_id = None
     
     print(f"[DEBUG] respond_to_chat: is_ready={ready}")
@@ -218,6 +220,7 @@ def respond_to_chat(
                 response="You've used all your free journeys. Please upgrade to continue.",
                 ready=False,
                 questions=None,
+                missing_info=missing_info,
                 journey_id=None,
                 conversation_id=conversation_id
             )
@@ -243,11 +246,7 @@ def respond_to_chat(
     # Get next suggestions if not ready (already computed in analysis above)
     questions = None
     if not ready:
-        chat = ChatDAO.get_chat(conversation_id)
-        asked_questions = chat.get("asked_questions", []) if chat else []
-        
-        # Use the suggestions from the analysis (already computed, no additional AI call)
-        next_suggestions = analysis.get("next_suggestions", [])
+        next_suggestions = turn.get("next_suggestions", [])
         if next_suggestions and len(next_suggestions) > 0:
             # Save the first suggestion to conversation state (for tracking)
             asked_questions.append(next_suggestions[0])
@@ -257,6 +256,7 @@ def respond_to_chat(
     return ChatRespondResponse(
         response=response_text,
         questions=questions,
+        missing_info=missing_info,
         ready=ready,
         journey_id=journey_id,
         conversation_id=conversation_id

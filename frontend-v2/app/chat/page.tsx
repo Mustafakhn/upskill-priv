@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MessageSquare, Send, Loader2, Sparkles } from 'lucide-react'
+import { MessageSquare, Send, Loader2, Sparkles, GraduationCap, SlidersHorizontal } from 'lucide-react'
 import Button from '../components/common/Button'
 import Loading from '../components/common/Loading'
 import { apiClient, ChatMessage } from '../services/api'
@@ -17,6 +17,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
+  const [missingInfo, setMissingInfo] = useState<string[]>([])
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
@@ -68,6 +69,7 @@ export default function ChatPage() {
 
       setMessages([...newMessages, aiMessage])
       setSuggestions(response.questions || [])
+      setMissingInfo(response.missing_info || [])
 
       if (response.conversation_id) {
         setConversationId(response.conversation_id)
@@ -78,6 +80,7 @@ export default function ChatPage() {
     } catch (error) {
       console.error('Error sending message:', error)
       setSuggestions([])
+      setMissingInfo([])
       const errorMessage: ChatMessage = {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',
@@ -94,6 +97,7 @@ export default function ChatPage() {
     setConversationId(convId)
     setMessages([])
     setSuggestions([])
+    setMissingInfo([])
     setLoading(true)
 
     try {
@@ -117,6 +121,7 @@ export default function ChatPage() {
     setSelectedConversationId(null)
     setMessages([])
     setSuggestions([])
+    setMissingInfo([])
   }
 
   if (authLoading) {
@@ -218,7 +223,7 @@ export default function ChatPage() {
                     Start a conversation
                   </h2>
                   <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 px-4">
-                    Ask me anything about learning or get help with your journey
+                    Tell me the topic, your level, and the format you prefer
                   </p>
                 </div>
               ) : (
@@ -259,6 +264,35 @@ export default function ChatPage() {
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-teal-600 dark:text-teal-400" />
                       <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {!loading && missingInfo.length > 0 && (
+                <div className="flex justify-start">
+                  <div className="max-w-4xl rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      Still Needed
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {missingInfo.includes('level') && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                          <GraduationCap className="h-3.5 w-3.5" />
+                          Experience level
+                        </span>
+                      )}
+                      {missingInfo.includes('preferred_format') && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                          <SlidersHorizontal className="h-3.5 w-3.5" />
+                          Learning format
+                        </span>
+                      )}
+                      {missingInfo.includes('topic') && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Topic
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

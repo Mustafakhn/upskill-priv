@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Send, Loader2, MessageSquare } from 'lucide-react'
+import { Send, Loader2, MessageSquare, Sparkles, SlidersHorizontal, GraduationCap } from 'lucide-react'
 import Image from 'next/image'
 import Button from '../components/common/Button'
 import Card from '../components/common/Card'
@@ -23,6 +23,7 @@ function StartPageContent() {
   const [loading, setLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
+  const [missingInfo, setMissingInfo] = useState<string[]>(['topic', 'level', 'preferred_format'])
   const [isReady, setIsReady] = useState(false)
   const [journeyId, setJourneyId] = useState<number | null>(null)
   const [showFormatSelector, setShowFormatSelector] = useState(false)
@@ -119,6 +120,8 @@ function StartPageContent() {
         setShowFormatSelector(false)
       }
 
+      setMissingInfo(response.missing_info || [])
+
       if (response.ready && response.journey_id) {
         setIsReady(true)
         setJourneyId(response.journey_id)
@@ -165,6 +168,7 @@ function StartPageContent() {
     setConversationId(convId)
     setMessages([])
     setSuggestions([])
+    setMissingInfo(['topic', 'level', 'preferred_format'])
     setShowFormatSelector(false)
     setIsReady(false)
     setJourneyId(null)
@@ -241,6 +245,7 @@ function StartPageContent() {
     setIsReady(false)
     setJourneyId(null)
     setSuggestions([])
+    setMissingInfo(['topic', 'level', 'preferred_format'])
     setShowFormatSelector(false)
     // Clear any polling intervals
     if (journeyStatusIntervalRef.current) {
@@ -338,6 +343,34 @@ function StartPageContent() {
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            {!isReady && (
+              <Card className="mb-3 border-teal-100 bg-white/90 dark:border-slate-700 dark:bg-slate-800/90">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700 dark:text-teal-300">
+                      Journey Setup
+                    </p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      We&apos;ll lock in your topic, current level, and preferred learning format before building the roadmap.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${missingInfo.includes('topic') ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'}`}>
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Topic
+                    </span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${missingInfo.includes('level') ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'}`}>
+                      <GraduationCap className="h-3.5 w-3.5" />
+                      Level
+                    </span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${missingInfo.includes('preferred_format') ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'}`}>
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      Format
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            )}
             {/* Chat Container */}
             {messages.length === 0 ? (
               <Card className="mb-3">
@@ -479,7 +512,7 @@ function StartPageContent() {
         {suggestions.length > 0 && !isReady && (
           <div className="flex-shrink-0 px-4 sm:px-6 py-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
             <div className="max-w-4xl mx-auto">
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Quick replies:</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Suggested replies:</p>
               <div className="flex flex-wrap gap-2">
                 {suggestions.map((suggestion, index) => (
                   <button

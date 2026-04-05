@@ -81,6 +81,7 @@ export interface ChatMessage {
 export interface ChatResponse {
   response: string
   questions?: string[]
+  missing_info?: string[]
   ready?: boolean
   journey_id?: number | null
   conversation_id?: string
