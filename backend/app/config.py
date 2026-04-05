@@ -57,12 +57,11 @@ settings = Settings()
 # Auto-generate public key from private key if not provided
 if settings.VAPID_PRIVATE_KEY and not settings.VAPID_PUBLIC_KEY:
     try:
-        from app.utils.vapid import get_public_key_from_private, format_vapid_private_key
-        # Try to format the key first (converts base64url to PEM if needed)
-        formatted_key = format_vapid_private_key(settings.VAPID_PRIVATE_KEY)
-        settings.VAPID_PRIVATE_KEY = formatted_key
+        from app.utils.vapid import get_public_key_from_private, normalize_vapid_key_input
+        normalized_key = normalize_vapid_key_input(settings.VAPID_PRIVATE_KEY)
+        settings.VAPID_PRIVATE_KEY = normalized_key
         # Generate public key (handles both PEM and base64url formats)
-        public_key = get_public_key_from_private(formatted_key)
+        public_key = get_public_key_from_private(normalized_key)
         if not public_key:
             # If formatting failed, try with the original key directly
             public_key = get_public_key_from_private(settings.VAPID_PRIVATE_KEY)

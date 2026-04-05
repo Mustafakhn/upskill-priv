@@ -67,6 +67,26 @@ class ConversationSummary(BaseModel):
     updated_at: str
 
 
+def build_journey_start_response(intent: Dict[str, str]) -> str:
+    """Build a more natural confirmation when journey creation starts."""
+    topic = intent.get("topic", "your topic")
+    level = intent.get("level", "beginner")
+    preferred_format = intent.get("preferred_format", "any")
+
+    format_phrase = {
+        "video": "with video-first resources",
+        "blog": "with strong written guides",
+        "doc": "with docs and reference material",
+        "mixed": "with a good mix of formats",
+        "any": "with a balanced mix of resources",
+    }.get(preferred_format, "with a balanced mix of resources")
+
+    return (
+        f"Nice, that gives me what I need. I'm putting together a {level}-friendly "
+        f"{topic} learning journey {format_phrase}. It should be ready in a few minutes."
+    )
+
+
 def get_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
     """Get user ID from token"""
     token = credentials.credentials
@@ -106,9 +126,6 @@ def start_chat(
     turn = ai_service.generate_chat_turn(history[:-1], request.message, asked_questions)
     response_text = turn["response"]
     
-    # Save assistant response to MongoDB
-    conversation_service.add_message(conversation_id, "assistant", response_text)
-    
     # Use unified analysis (single AI call for everything)
     ready = turn["is_ready"]
     intent = turn["intent"]
@@ -147,8 +164,11 @@ def start_chat(
         # Link journey to conversation
         conversation_service.link_journey_to_conversation(conversation_id, journey_id)
         
-        response_text = f"Perfect! I've started creating your personalized learning journey for '{intent['topic']}'. This may take a few minutes."
+        response_text = build_journey_start_response(intent)
     
+    # Save final assistant response to MongoDB
+    conversation_service.add_message(conversation_id, "assistant", response_text)
+
     # Get next suggestions if not ready (already computed in analysis above)
     questions = None
     next_suggestions = turn.get("next_suggestions", [])
@@ -200,9 +220,6 @@ def respond_to_chat(
     turn = ai_service.generate_chat_turn(history[:-1], request.message, asked_questions)
     response_text = turn["response"]
     
-    # Save assistant response to MongoDB
-    conversation_service.add_message(conversation_id, "assistant", response_text)
-    
     # Use unified analysis method (single AI call for everything)
     ready = turn["is_ready"]
     intent = turn["intent"]
@@ -241,8 +258,11 @@ def respond_to_chat(
         # Link journey to conversation
         conversation_service.link_journey_to_conversation(conversation_id, journey_id)
         
-        response_text = f"Perfect! I've started creating your personalized learning journey for '{intent['topic']}'. This may take a few minutes."
+        response_text = build_journey_start_response(intent)
     
+    # Save final assistant response to MongoDB
+    conversation_service.add_message(conversation_id, "assistant", response_text)
+
     # Get next suggestions if not ready (already computed in analysis above)
     questions = None
     if not ready:

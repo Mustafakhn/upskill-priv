@@ -201,6 +201,7 @@ Return ONLY valid JSON with this exact structure:
 Rules:
 - The response should be 1-3 short sentences, conversational and helpful.
 - Sound like a chat, not a form or checklist.
+- Briefly react to what the user just said before asking the next thing.
 - Actively gather the missing setup info needed for a learning plan.
 - Required setup info: topic, learner level, preferred learning format.
 - Goal is helpful but optional; if the user gives one, keep it.
@@ -214,6 +215,11 @@ Rules:
 - Suggestions should be short option labels, not full first-person sentences.
 - Do not start suggestions with "I", "I'm", or "I want".
 - Avoid repeating the exact same wording across all suggestions.
+
+Good tone examples:
+- "Kubernetes and Terraform are a strong combo. What's your current level with them?"
+- "Nice, beginner is totally fine here. Do you want videos, written guides, or a mix?"
+- "Perfect, mixed works well for this topic. I'll build your learning path now."
 """
 
         prompt = f"""Conversation:

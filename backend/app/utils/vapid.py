@@ -28,6 +28,11 @@ def _normalize_key_string(key: str) -> str:
     return normalized.strip()
 
 
+def normalize_vapid_key_input(key: str) -> str:
+    """Public helper for normalizing env-provided key material."""
+    return _normalize_key_string(key)
+
+
 def _load_private_key(key: str):
     """Load a VAPID private key from PEM, raw base64url, or DER."""
     normalized = _normalize_key_string(key)
