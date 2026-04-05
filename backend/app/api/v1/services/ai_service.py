@@ -74,10 +74,11 @@ class AIService:
                 "general learning",
                 "get better",
                 "improve",
+                f"learn {topic}".lower() if topic else "",
             }
             if goal.lower() not in generic_goals:
                 return goal
-        return f"Learn {topic}" if topic else ""
+        return ""
 
     def _validate_intent(self, intent: Dict[str, Any]) -> Dict[str, Any]:
         topic = self._clean_topic(intent.get("topic"))
@@ -97,6 +98,8 @@ class AIService:
             missing.append("topic")
         if not level:
             missing.append("level")
+        if not goal:
+            missing.append("goal")
         if not preferred_format:
             missing.append("preferred_format")
 
@@ -128,6 +131,13 @@ class AIService:
                 "Some experience",
                 "Intermediate level",
                 "Advanced level",
+            ]
+        if missing == "goal":
+            return [
+                f"Hands-on {topic} projects" if topic else "Hands-on projects",
+                f"Job-ready {topic} skills" if topic else "Job-ready skills",
+                f"{topic} fundamentals" if topic else "Strong fundamentals",
+                f"Real-world {topic} workflow" if topic else "Real-world workflow",
             ]
         if missing == "preferred_format":
             return [
@@ -203,9 +213,9 @@ Rules:
 - Sound like a chat, not a form or checklist.
 - Briefly react to what the user just said before asking the next thing.
 - Actively gather the missing setup info needed for a learning plan.
-- Required setup info: topic, learner level, preferred learning format.
-- Goal is helpful but optional; if the user gives one, keep it.
-- Ask for only one missing thing at a time, prioritizing topic, then level, then preferred_format.
+- Required setup info: topic, learner level, learner goal, preferred learning format.
+- The goal should capture what the learner wants to achieve, build, or become capable of.
+- Ask for only one missing thing at a time, prioritizing topic, then level, then goal, then preferred_format.
 - If all required info is present, confirm you are ready to build the journey.
 - Extract only what the user explicitly said or strongly implied.
 - Do not invent user preferences.
@@ -218,8 +228,9 @@ Rules:
 
 Good tone examples:
 - "Kubernetes and Terraform are a strong combo. What's your current level with them?"
-- "Nice, beginner is totally fine here. Do you want videos, written guides, or a mix?"
-- "Perfect, mixed works well for this topic. I'll build your learning path now."
+- "Nice, beginner is totally fine here. What are you hoping to do with them?"
+- "That helps. Do you want videos, written guides, docs, or a mix?"
+- "Perfect, that gives me enough to build your learning path."
 """
 
         prompt = f"""Conversation:
@@ -258,6 +269,8 @@ Generate the next assistant reply, extract the structured learning intent, and p
                 response = "Tell me what you want to learn, and I'll shape a plan around it."
             elif not intent["level"]:
                 response = f"Nice choice. What's your current level in {intent['topic']}?"
+            elif not intent["goal"]:
+                response = f"Got it. What are you hoping to do with {intent['topic']}?"
             elif not intent["preferred_format"]:
                 response = "What kind of material helps you learn best: videos, articles, docs, or mixed?"
             else:

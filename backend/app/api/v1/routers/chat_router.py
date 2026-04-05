@@ -71,7 +71,9 @@ def build_journey_start_response(intent: Dict[str, str]) -> str:
     """Build a more natural confirmation when journey creation starts."""
     topic = intent.get("topic", "your topic")
     level = intent.get("level", "beginner")
+    goal = intent.get("goal", "")
     preferred_format = intent.get("preferred_format", "any")
+    article = "an" if level[:1].lower() in {"a", "e", "i", "o", "u"} else "a"
 
     format_phrase = {
         "video": "with video-first resources",
@@ -81,9 +83,10 @@ def build_journey_start_response(intent: Dict[str, str]) -> str:
         "any": "with a balanced mix of resources",
     }.get(preferred_format, "with a balanced mix of resources")
 
+    goal_phrase = f" focused on {goal}" if goal and goal.lower() != f"learn {topic}".lower() else ""
     return (
-        f"Nice, that gives me what I need. I'm putting together a {level}-friendly "
-        f"{topic} learning journey {format_phrase}. It should be ready in a few minutes."
+        f"Perfect, I have the shape of it now. I'm putting together {article} {level}-friendly "
+        f"{topic} journey{goal_phrase} {format_phrase}. It should be ready in a few minutes."
     )
 
 
