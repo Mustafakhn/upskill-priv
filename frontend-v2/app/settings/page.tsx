@@ -6,7 +6,7 @@ import { apiClient } from '../services/api'
 import Button from '../components/common/Button'
 import Card from '../components/common/Card'
 import { Download, User, Lock, CheckCircle, XCircle, Bell, BellOff } from 'lucide-react'
-import { requestNotificationPermission, registerServiceWorker, subscribeToPushNotifications, unsubscribeFromPushNotifications, getNotificationPermissionStatus, isPushSubscribed } from '../utils/notifications'
+import { requestNotificationPermission, getReadyServiceWorkerRegistration, subscribeToPushNotifications, unsubscribeFromPushNotifications, getNotificationPermissionStatus, isPushSubscribed, showTestNotification } from '../utils/notifications'
 
 export default function SettingsPage() {
   const { user, checkAuth } = useAuth()
@@ -32,6 +32,7 @@ export default function SettingsPage() {
   const [notificationEnabled, setNotificationEnabled] = useState(false)
   const [notificationLoading, setNotificationLoading] = useState(false)
   const [notificationPermission, setNotificationPermission] = useState<'granted' | 'denied' | 'default'>('default')
+  const [testNotificationLoading, setTestNotificationLoading] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -47,8 +48,11 @@ export default function SettingsPage() {
       
       if (permission === 'granted' && 'serviceWorker' in navigator) {
         try {
-          // Register service worker first if needed
-          const registration = await navigator.serviceWorker.ready
+          const registration = await getReadyServiceWorkerRegistration()
+          if (!registration) {
+            setNotificationEnabled(false)
+            return
+          }
           const subscribed = await isPushSubscribed(registration)
           setNotificationEnabled(subscribed)
         } catch (error) {
@@ -229,7 +233,7 @@ export default function SettingsPage() {
     setMessage(null)
 
     try {
-      const registration = await registerServiceWorker()
+      const registration = await getReadyServiceWorkerRegistration()
       if (!registration) {
         throw new Error('Failed to register service worker')
       }
@@ -254,7 +258,13 @@ export default function SettingsPage() {
         }
         setNotificationEnabled(true)
         setNotificationPermission('granted')
-        setMessage({ type: 'success', text: 'Notifications enabled successfully' })
+        const testShown = await showTestNotification(registration)
+        setMessage({
+          type: 'success',
+          text: testShown
+            ? 'Notifications enabled successfully. A test notification was sent.'
+            : 'Notifications enabled successfully.'
+        })
       }
     } catch (error: any) {
       console.error('Failed to toggle notifications:', error)
@@ -264,6 +274,32 @@ export default function SettingsPage() {
       })
     } finally {
       setNotificationLoading(false)
+    }
+  }
+
+  const handleSendTestNotification = async () => {
+    setTestNotificationLoading(true)
+    setMessage(null)
+
+    try {
+      const registration = await getReadyServiceWorkerRegistration()
+      if (!registration) {
+        throw new Error('Service worker is not ready yet')
+      }
+
+      const shown = await showTestNotification(registration)
+      if (!shown) {
+        throw new Error('Could not display a test notification')
+      }
+
+      setMessage({ type: 'success', text: 'Test notification sent.' })
+    } catch (error: any) {
+      setMessage({
+        type: 'error',
+        text: error.message || 'Failed to send test notification'
+      })
+    } finally {
+      setTestNotificationLoading(false)
     }
   }
 
@@ -439,6 +475,15 @@ export default function SettingsPage() {
                   </>
                 )}
               </Button>
+              {notificationEnabled && (
+                <Button
+                  onClick={handleSendTestNotification}
+                  disabled={testNotificationLoading}
+                  variant="outline"
+                >
+                  {testNotificationLoading ? 'Sending...' : 'Send Test'}
+                </Button>
+              )}
             </div>
           </div>
         </div>

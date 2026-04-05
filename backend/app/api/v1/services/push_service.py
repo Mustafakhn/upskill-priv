@@ -1,6 +1,7 @@
 from typing import Dict, Any, Optional
 from pywebpush import webpush, WebPushException
 import json
+import time
 from app.config import settings
 from app.api.v1.dao.push_dao import PushDAO
 
@@ -38,7 +39,9 @@ class PushService:
         user_id: int,
         title: str,
         body: str,
-        data: Optional[Dict[str, Any]] = None
+        data: Optional[Dict[str, Any]] = None,
+        wait_for_subscription_seconds: int = 0,
+        poll_interval_seconds: float = 2.0,
     ) -> bool:
         """Send a push notification to a user"""
         if not settings.VAPID_PRIVATE_KEY or not settings.VAPID_PUBLIC_KEY:
@@ -46,6 +49,12 @@ class PushService:
             return False
         
         subscription = self.push_dao.get_subscription(user_id)
+        if not subscription and wait_for_subscription_seconds > 0:
+            deadline = time.time() + wait_for_subscription_seconds
+            while time.time() < deadline and not subscription:
+                time.sleep(poll_interval_seconds)
+                subscription = self.push_dao.get_subscription(user_id)
+
         if not subscription:
             print(f"No push subscription found for user {user_id}")
             return False
@@ -55,8 +64,8 @@ class PushService:
             payload = {
                 "title": title,
                 "body": body,
-                "icon": "/upskill-logo.svg",
-                "badge": "/upskill-logo.svg",
+                "icon": "/icon-192.png",
+                "badge": "/icon-192.png",
                 "tag": data.get("tag", "notification") if data else "notification",
                 "data": data or {}
             }
@@ -105,12 +114,13 @@ class PushService:
         """Send notification when a journey is ready"""
         return self.send_notification(
             user_id=user_id,
-            title="Journey Ready! 🎉",
+            title="Journey Ready!",
             body=f"Your learning journey for '{topic}' is ready to start!",
             data={
                 "type": "journey_ready",
                 "journeyId": journey_id,
                 "url": f"/journey/{journey_id}"
-            }
+            },
+            wait_for_subscription_seconds=20,
+            poll_interval_seconds=2.0,
         )
-

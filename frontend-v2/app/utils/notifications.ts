@@ -39,6 +39,20 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   }
 }
 
+export async function getReadyServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
+  const registration = await registerServiceWorker()
+  if (!registration) {
+    return null
+  }
+
+  try {
+    return await navigator.serviceWorker.ready
+  } catch (error) {
+    console.error('Service worker did not become ready:', error)
+    return registration
+  }
+}
+
 export async function subscribeToPushNotifications(
   registration: ServiceWorkerRegistration
 ): Promise<PushSubscription | null> {
@@ -86,6 +100,20 @@ export async function subscribeToPushNotifications(
   }
 }
 
+export async function ensurePushSubscription(): Promise<PushSubscription | null> {
+  const permission = await getNotificationPermissionStatus()
+  if (permission !== 'granted') {
+    return null
+  }
+
+  const registration = await getReadyServiceWorkerRegistration()
+  if (!registration) {
+    return null
+  }
+
+  return subscribeToPushNotifications(registration)
+}
+
 async function getVapidPublicKey(): Promise<string | null> {
   // Try to get from backend API
   try {
@@ -127,6 +155,38 @@ export function showLocalNotification(title: string, options?: NotificationOptio
     badge: '/icon-192.png',
     ...options
   })
+}
+
+export async function showTestNotification(registration?: ServiceWorkerRegistration | null): Promise<boolean> {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    return false
+  }
+
+  const activeRegistration = registration || await getReadyServiceWorkerRegistration()
+  const options: NotificationOptions = {
+    body: 'Notifications are enabled and ready to use.',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: 'notifications-test',
+    data: { url: '/settings' }
+  }
+
+  try {
+    if (activeRegistration?.showNotification) {
+      await activeRegistration.showNotification('Notifications enabled', options)
+    } else {
+      showLocalNotification('Notifications enabled', options)
+    }
+    return true
+  } catch (error) {
+    console.error('Failed to show test notification:', error)
+    try {
+      showLocalNotification('Notifications enabled', options)
+      return true
+    } catch {
+      return false
+    }
+  }
 }
 
 export async function unsubscribeFromPushNotifications(

@@ -100,38 +100,38 @@ class AIService:
     def _build_fallback_suggestions(self, missing_info: List[str], topic: str = "") -> List[str]:
         if not missing_info:
             return [
-                "Build me a roadmap now",
-                "Show a balanced learning plan",
-                "Give me the fastest path",
+                "Build roadmap now",
+                "Balanced learning plan",
+                "Fastest path",
             ]
 
         missing = missing_info[0]
         if missing == "topic":
             return [
-                "I want to learn Python",
-                "I want to learn UI design",
-                "I want to learn digital marketing",
-                "I want to learn guitar",
+                "Learn Python",
+                "Learn UI design",
+                "Learn digital marketing",
+                "Learn guitar",
             ]
         if missing == "level":
             return [
-                "I'm a complete beginner",
-                "I have some experience already",
-                "I'm at an intermediate level",
-                "I'm already advanced",
+                "Complete beginner",
+                "Some experience",
+                "Intermediate level",
+                "Advanced level",
             ]
         if missing == "preferred_format":
             return [
-                "I prefer video lessons",
-                "I prefer reading articles",
-                "I like documentation and guides",
-                "I want a mixed learning format",
+                "Video lessons",
+                "Reading articles",
+                "Documentation and guides",
+                "Mixed learning format",
             ]
         if topic:
             return [
-                f"I want practical {topic} projects",
-                f"I want job-ready {topic} skills",
-                f"I want strong {topic} fundamentals",
+                f"Practical {topic} projects",
+                f"Job-ready {topic} skills",
+                f"{topic} fundamentals",
             ]
         return ["Help me narrow it down", "Suggest a good starting point", "Give me a balanced plan"]
 
@@ -144,6 +144,12 @@ class AIService:
             if not isinstance(suggestion, str):
                 continue
             value = suggestion.strip().strip('"').strip("'").rstrip(".? ")
+            for prefix in ["I'm ", "I am ", "I want ", "I'd like ", "I would like ", "I prefer ", "I'd prefer "]:
+                if value.lower().startswith(prefix.lower()):
+                    value = value[len(prefix):].strip()
+                    break
+            if value.lower().startswith("to learn "):
+                value = value[9:].strip()
             if 3 <= len(value) <= 80 and value not in cleaned:
                 cleaned.append(value)
 
@@ -195,7 +201,8 @@ Rules:
 - next_suggestions must be 3-4 short clickable replies relevant to your response.
 - When collecting info, next_suggestions should help answer the exact missing question.
 - Keep each suggestion under 10 words when possible.
-- Suggestions should sound like things the user could send next.
+- Suggestions should be short option labels, not full first-person sentences.
+- Do not start suggestions with "I", "I'm", or "I want".
 - Avoid repeating the exact same wording across all suggestions.
 """
 

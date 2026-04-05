@@ -10,7 +10,7 @@ import Loading from '../components/common/Loading'
 import ConversationHistory from '../components/chat/ConversationHistory'
 import { apiClient, ChatMessage } from '../services/api'
 import { useAuth } from '../hooks/useAuth'
-import { requestNotificationPermission, registerServiceWorker, showLocalNotification, subscribeToPushNotifications } from '../utils/notifications'
+import { ensurePushSubscription, requestNotificationPermission, getReadyServiceWorkerRegistration, showLocalNotification, subscribeToPushNotifications } from '../utils/notifications'
 
 function StartPageContent() {
   const router = useRouter()
@@ -60,6 +60,16 @@ function StartPageContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topicFromUrl, isAuthenticated])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
+
+    ensurePushSubscription().catch((error) => {
+      console.warn('Could not restore push subscription on start page:', error)
+    })
+  }, [isAuthenticated])
 
   // Fetch popular topics on mount
   useEffect(() => {
@@ -128,7 +138,7 @@ function StartPageContent() {
 
         // Request notification permission and subscribe to push when journey creation starts
         try {
-          const registration = await registerServiceWorker()
+          const registration = await getReadyServiceWorkerRegistration()
           if (registration) {
             const permissionGranted = await requestNotificationPermission()
             if (permissionGranted) {
