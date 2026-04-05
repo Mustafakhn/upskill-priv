@@ -62,7 +62,7 @@ export default function ChatPage() {
 
       const aiMessage: ChatMessage = {
         role: 'assistant',
-        content: response.response || response.answer,
+        content: response.response,
         timestamp: new Date().toISOString()
       }
 
